@@ -1,0 +1,315 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  font-size: 14px;
+}
+.mypage_box{
+  width: 100%;
+  height: 1024px;
+ 
+  opacity: 1;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+.mypagetext_box {
+  width: 486px;
+  height: 143px;
+  background: rgba(217,217,217,1);
+  opacity: 1;
+  position: absolute;
+  top: 181px;
+  left: 0px;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  overflow: hidden;
+}
+.mypage_inner_box {
+  width: 100%;
+  height: 768px;
+  background: rgba(217,217,217,1);
+  opacity: 1;
+  position: absolute;
+  top: 233px;
+  left: 0px;
+  overflow: hidden;
+}
+.private_update {
+  width: 315px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 123px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+.password_change{
+  width: 315px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 438px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+.my_authmark {
+position: absolute;
+width: 241px;
+height: 37px;
+left: 826px;
+top: 287px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 38px;
+line-height: 46px;
+text-align: center;
+
+color: #424A47;
+}
+
+.my_contribution_status{
+position: absolute;
+width: 241px;
+height: 37px;
+left: 1130px;
+top: 287px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 38px;
+line-height: 46px;
+text-align: center;
+
+color: #424A47;
+}
+
+
+.slash_1{
+  width: 85px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 396px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+.slash_2{
+  width: 85px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 720px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+
+.slash_3{
+ /* / */
+
+position: absolute;
+width: 47px;
+height: 44px;
+left: 1075px;
+top: 287px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 38px;
+line-height: 46px;
+text-align: center;
+
+color: #424A47;
+
+
+}
+
+.title {
+  width: 382px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 62px;
+  left: 65px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 60px;
+  opacity: 1;
+  text-align: center;
+}
+.my_data {
+  width: 157px;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 401px;
+  left: 86px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 40px;
+  opacity: 1;
+  text-align: center;
+}
+.logout {
+  width: 390px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 87px;
+  left: 1523px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 30px;
+  opacity: 1;
+  text-align: center;
+}
+
+.logout_btn{
+  
+position: absolute;
+width: 120px;
+height: 52px;
+top: 130px;
+left: 1650px;
+
+
+border-radius: 20px;
+font-size: 25px;
+}
+.mypage {
+  width: 315px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 208px;
+  left: 98px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+
+.line{
+position: absolute;
+width: 1664px;
+height: 0px;
+left: 86px;
+top: 450px;
+
+border: 1px solid #000000;
+
+}
+
+.name{
+  width: 74px;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 516px;
+  left: 92px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+.name_box {
+position: absolute;
+width: 844px;
+height: 52px;
+left: 266px;
+top: 512px;
+border-radius: 9px;
+font-size: 20px;
+}
+
+.nickname {
+  width: 111px;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 617px;
+  left: 92px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+.nickname_box {
+position: absolute;
+width: 844px;
+height: 52px;
+left: 266px;
+top: 617px;
+border-radius: 9px;
+font-size: 20px;
+
+}
+.number{
+position: absolute;
+width: 111px;
+height: 48px;
+left: 92px;
+top: 718px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 40px;
+line-height: 48px;
+
+color: #000000;
+}
+
+.number_box {
+position: absolute;
+width: 844px;
+height: 52px;
+left: 266px;
+top: 714px;
+border-radius: 9px;
+font-size: 20px;
+
+}
+
+.cancel_btn{
+
+position: absolute;
+width: 217px;
+height: 62px;
+left: 694px;
+top: 924px;
+
+background: #C5C3C3;
+border-radius: 20px;
+font-size: 25px;
+
+
+}
+
+.update_btn{
+
+position: absolute;
+width: 217px;
+height: 62px;
+left: 979px;
+top: 924px;
+
+background: #C5C3C3;
+border-radius: 20px;
+font-size: 25px;
+
+}

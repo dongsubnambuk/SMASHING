@@ -1,0 +1,405 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  font-size: 14px;
+}
+.mypage_box{
+  width: 100%;
+  height: 1500px;
+ 
+  opacity: 1;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  overflow: hidden;
+}
+.mypagetext_box {
+  width: 486px;
+  height: 143px;
+  background: rgba(217,217,217,1);
+  opacity: 1;
+  position: absolute;
+  top: 181px;
+  left: 0px;
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  overflow: hidden;
+}
+.mypage_inner_box {
+  width: 100%;
+  height: 100%;
+  background: rgba(217,217,217,1);
+  opacity: 1;
+  position: absolute;
+  top: 240px;
+  left: 0px;
+  overflow: hidden;
+}
+.private_update {
+  width: 315px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 123px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+.password_change{
+  width: 315px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 438px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+.my_authmark {
+position: absolute;
+width: 241px;
+height: 37px;
+left: 826px;
+top: 287px;
+
+font-family: 'Inter';
+font-weight: Bold;
+font-size: 38px;
+line-height: 46px;
+text-align: center;
+
+color: #424A47;
+}
+
+.my_contribution_status{
+position: absolute;
+width: 241px;
+height: 37px;
+left: 1130px;
+top: 287px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 38px;
+line-height: 46px;
+text-align: center;
+
+color: #424A47;
+}
+
+
+.slash_1{
+  width: 85px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 396px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+.slash_2{
+  width: 85px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 284px;
+  left: 720px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+
+.slash_3{
+ /* / */
+
+position: absolute;
+width: 47px;
+height: 44px;
+left: 1075px;
+top: 287px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 38px;
+line-height: 46px;
+text-align: center;
+
+color: #424A47;
+
+
+}
+
+.title {
+  width: 382px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 62px;
+  left: 65px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 60px;
+  opacity: 1;
+  text-align: center;
+}
+.my_authmark_inner {
+position: absolute;
+width: 231px;
+height: 48px;
+left: 121px;
+top: 398px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 700;
+font-size: 40px;
+line-height: 48px;
+text-align: center;
+
+color: #000000;
+
+
+}
+.logout {
+  width: 390px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 87px;
+  left: 1523px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 30px;
+  opacity: 1;
+  text-align: center;
+}
+
+.logout_btn{
+  
+position: absolute;
+width: 120px;
+height: 52px;
+top: 130px;
+left: 1650px;
+
+
+border-radius: 20px;
+font-size: 25px;
+}
+.mypage {
+  width: 315px;
+  color: rgba(65,74,70,1);
+  position: absolute;
+  top: 208px;
+  left: 98px;
+  font-family: Inter;
+  font-weight: Bold;
+  font-size: 38px;
+  opacity: 1;
+  text-align: center;
+}
+
+.line1{
+position: absolute;
+width: 1664px;
+height: 0px;
+left: 86px;
+top: 450px;
+
+border: 1px solid #000000;
+
+}
+
+.line2{
+
+position: absolute;
+width: 1664px;
+height: 0px;
+left: 79px;
+top: 879px;
+
+border: 1px solid #000000;
+
+}
+
+.line3{
+
+position: absolute;
+width: 1664px;
+height: 0px;
+left: 79px;
+top: 1366px;
+
+border: 1px solid #000000;
+
+}
+.comment {
+  width: 100%;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 514px;
+  left: 123px;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+.attached_document {
+  width: 669px;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 1011px;
+  left: 123px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+.id_card_upload {
+ 
+  opacity: 1;
+  position: absolute;
+  top: 969px;
+  left: 1203px;
+  overflow: hidden;
+}
+.certificate_upload {
+
+  opacity: 1;
+  position: absolute;
+  top: 1114px;
+  left: 1203px;
+  overflow: hidden;
+}
+.professional {
+  width: 164px;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 921px;
+  left: 117px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+.nomal_persen {
+  width: 200px;
+  color: rgba(0,0,0,1);
+  position: absolute;
+  top: 1404px;
+  left: 123px;
+  font-family: Inter;
+  font-weight: Regular;
+  font-size: 40px;
+  opacity: 1;
+  text-align: left;
+}
+
+.request_btn{
+position: absolute;
+width: 250px;
+height: 50px;
+left: 156px;
+top: 1223px;
+border-radius: 15px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 25px;
+line-height: 30px;
+
+color: #000000;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  height: auto;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  display: none;
+}
+.popup.active {
+  display: flex; /* active 클래스가 추가되면 팝업을 표시 */
+}
+
+.popup-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column; /* 세로 중앙 정렬 */
+  align-items: center; /* 가로 중앙 정렬 */
+}
+
+.popup h2 {
+  margin-top: 0;
+}
+
+.popup form {
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+  display: flex;
+  flex-direction: column; /* 세로 중앙 정렬 */
+  align-items: center; /* 가로 중앙 정렬 */
+  justify-content: space-between; /* 버튼을 나란히 배치 */
+  gap: 10px; /* 버튼 사이 간격 추가 */
+  flex-direction: row;
+}
+
+.label-button {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #fff;
+  vertical-align: middle;
+  background-color: #999999;
+  cursor: pointer;
+  height: 40px;
+  margin-left: 10px;
+}
+
+.popup input[type="file"] {
+  display: none;
+}
+
+.label-button:hover {
+  background-color: #777777;
+}
+
+.popup button[type="submit"],
+.popup button[type="button"] {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.popup-message {
+  text-align: center;
+  margin-top: 10px;
+  color: green;
+}

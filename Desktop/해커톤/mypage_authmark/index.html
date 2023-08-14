@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Inter&display=swap" rel="stylesheet" />
+    <link href="./main.css" rel="stylesheet" />
+    <title>authmark</title>
+</head>
+
+<body>
+    <div class="mypage_box">
+        <div class="mypagetext_box"></div>
+        <div class="mypage_inner_box"></div>
+
+        <span class="private_update">개인정보 수정 </span>
+        <span class="password_change">비밀번호 변경</span>
+        <span class="my_authmark">나의 인증마크</span>
+        <span class="my_contribution_status">나의 기여현황</span>
+
+        <span class="slash_1">/</span>
+        <span class="slash_2">/</span>
+        <span class="slash_3">/</span>
+
+        <!-- <span class="service_name">서비스 이름</span> -->
+        <img src="../Group 50.png" class="title" />
+        <span class="my_authmark_inner">나의 인증마크</span>
+        <span class="logout"> 000 님</span>
+        <button class="logout_btn">로그아웃</button>
+        <span class="mypage">마이페이지</span>
+        <hr class="line1" />
+    </div>
+
+
+    <span class="comment">인증 마크는 프로필이 공식적으로 인증받았다는 것을 의미합니다.<br>
+        이전 자격 요건을 나타내는 인증 배지가 있는 사용자가 계속 표시될 수 있습니다.
+
+        <p>전문인 회원은 증빙 서류를 첨부한 후 심사 후에 부여해 드릴 예정입니다.<br>
+            심사일은 약 2~3일 정도 소요되며 별도의 통보 없이 바로 확인하시면 됩니다.</p>
+
+        <p>일반인 회원은 사이트 기여도 현황에 따라 자동 부여됩니다.</p>
+    </span>
+    <hr class="line2" />
+    <span class="professional">
+        <전문인>
+    </span>
+
+    <span class="attached_document">(첨부 서류)<br>
+
+        <li>신분증</li>
+        <li>본인의 직업을 나타낼 수 있는 증명서</li>
+    </span>
+    <hr class="line3" />
+    <button class="request_btn">인증 마크 요청하기</button>
+    </div>
+
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <h2>인증 마크 요청</h2>
+            <form id="requestForm">
+                <div class="form-group">
+                    <label class="label-button" for="id_card">신분증 첨부</label>
+                    <input type="file" id="id_card" name="id_card" required>
+                </div>
+                <div class="form-group">
+                    <label class="label-button" for="certificate">증명서 첨부</label>
+                    <input type="file" id="certificate" name="certificate" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="submitButton">제출하기</button>
+                    <button type="button" id="cancelButton">취소하기</button>
+                </div>
+            </form>
+            <div class="popup-message" id="popupMessage"></div>
+        </div>
+    </div>
+
+
+
+    <script src="request_btn.js"></script>
+</body>
+
+</html>
