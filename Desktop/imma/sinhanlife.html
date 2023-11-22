@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신빅해 신한라이프</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #eef3fb;
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                margin-top: 2%;
+            }
+        }
+
+        .custom_header {
+            position: fixed;
+            width: 100%;
+            height: 6%;
+            top: 0;
+            left: 0;
+            background-color: #715deb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            border-bottom: 1px solid #a8a5a5;
+        }
+
+        .custom_header .title_box {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 0;
+            font-family: 'OneShinhan', Helvetica, sans-serif;
+            margin-left: 2.5%;
+        }
+
+        .custom_header .additional_content {
+            display: flex;
+            align-items: center;
+        }
+
+        .custom_header .login_register_links {
+            display: flex;
+            align-items: center;
+        }
+
+        .custom_header .login_register_links a {
+            text-decoration: none;
+            color: #fff;
+            margin: 0 10px;
+        }
+
+        .custom_header .login_register_links span {
+            color: #ccc;
+            font-size: 18px;
+        }
+
+        .grape_box {
+            margin-top: 5%;
+            width: 100%;
+            height: 250px;
+        }
+
+        .grape_inner {
+            width: 100%;
+           
+        }
+
+        .grape1,
+        .grape2,
+        .grape3 {
+            margin-left: 2.5%;
+            float: left;
+            width: 30%;
+            height: 100%;
+            color: #fff;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .middle_box {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #715deb;
+            background-color: #715deb;
+            margin-left: 0%;
+        }
+
+        .Insurance_type_box {
+            margin-top: 1%;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ccc;
+        }
+
+        .Insurance_type_box nav ul {
+            list-style-type: none;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .Insurance_type_box nav ul li {
+            margin-right: 5px;
+            background-color: #ccc;
+            list-style: none;
+            display: flex;
+            color: #333;
+            margin: 0;
+            padding: 4px 16px;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .Insurance_type_box nav ul li.separator {
+            width: 0px;
+            height: 0%;
+            background-color: transparent;
+        }
+
+        .Insurance_type_box nav ul li a {
+            text-decoration: none;
+            font-size: 16px;
+            color: #333;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+        }
+
+        .Insurance_type_box nav ul li a:hover {
+            border-color: #003DA5;
+            border-radius: 309px;
+            border-width: 2px;
+        }
+
+        @media screen and (max-width: 768px) {
+            .Insurance_type_box nav ul li {
+                margin-right: 0px;
+                padding: 8px 8px;
+            }
+        }
+
+        .Insurance_type_explain {
+            margin-top: 1%;
+            width: 100%;
+            height: 200px;
+            
+            
+        }
+
+        .Insurance_type_grape1,
+        .Insurance_type_grape2,
+        .Insurance_type_ex {
+            margin-left: 2.5%;
+            float: left;
+            width: 30%;
+            height: 195px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ccc;
+            
+        }
+
+        .check_box {
+            margin-left: 2.5%;
+            order: 1;
+            width: 50%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: #eef3fb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          
+        }
+        
+        .check_box div {
+            margin-bottom: 10px;
+        }
+        
+        .check_box label {
+            display: inline-block;
+            width: 70px;
+            font-weight: bold;
+        }
+        
+        .check_box select,
+        .check_box input[type="radio"] {
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        
+        .check_box input[type="radio"]:checked + label::before {
+            content: '\2022';
+            font-size: 15px;
+            color: #007bff;
+            position: absolute;
+            top: 3px;
+            left: -30px;
+        }
+        
+        .check_box input[type="radio"] + label::before {
+            content: '';
+            font-size: 20px;
+            color: transparent;
+            position: absolute;
+            top: 3px;
+            left: -30px;
+        }
+
+        .botton_box {
+            width: 100%;
+            
+        }
+
+        #searchButton1 {
+            background-color: #003DA5;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        #searchButton1:hover {
+            background-color: #001F5B;
+        }
+
+        .check_box div:last-child {
+            text-align: center;
+        }
+
+    
+        
+        .result {
+            margin-left: 2.5%;
+            margin-right: 2.5%;
+            margin-bottom: 1%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 50px;
+            background-color: #eef3fb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 1%;
+        }
+       
+     
+        @media screen and (max-width: 768px) {
+            .result {
+                width: 35%;
+            }
+        }
+     /* 검색 박스 스타일 */
+.search_box {
+    order: 2;
+    height: 150px;
+    align-items: center;
+    border: 1px solid #ccc;
+    margin-right: 2.5%; /* 내부 요소들을 세로 중앙 정렬 */
+}
+
+/* 검색 박스 스타일 */
+.search_box {
+    display: flex;
+    flex-direction: column; /* 내부 요소들을 세로로 배치하기 위해 flex-direction 추가 */
+    align-items: center; /* 내부 요소들을 세로 중앙 정렬 */
+    width: 35%; /* 전체 박스의 너비를 조절하세요 */
+    height: 150px; /* 전체 박스의 높이를 조절하세요 */
+}
+
+/* 검색 입력 필드 스타일 */
+#searchInput {
+    width: 30%;
+    margin-top: 1%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px; /* 검색 입력 필드 아래 여백을 주세요 */
+}
+
+/* 검색 버튼 스타일 */
+#searchButton2 {
+    background-color: #003DA5;
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#searchButton2:hover {
+    background-color: #001F5B;
+}
+
+
+        .checkandsearch_box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1%;
+            margin-bottom: 1%;
+            box-sizing: border-box;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #ccc;
+            background-color: #f8f8f8;
+            font-family: 'Lato', sans-serif;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 12px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .Insurance_type_box,
+        .Insurance_type_box nav ul li,
+        .Insurance_type_explain,
+        .Insurance_type_grape1,
+        .Insurance_type_grape2,
+        .Insurance_type_ex {
+            background-color: #eef3fb;
+        }
+    </style>
+</head>
+<body>
+    <div class="middle_box">
+        <header class="custom_header">
+            <div class="title_box">신한라이프</div>
+            <div class="additional_content">
+                <div class="login_register_links">
+                    <a href="#">로그인</a>
+                    <span>또는</span>
+                    <a href="#">회원가입</a>
+                </div>
+            </div>
+        </header>
+        <div class="grape_box">
+            <div class="grape_inner">
+               
+            </div>
+        </div>
+    </div>
+    <div class="botton_box">
+        <div class="Insurance_type_box">
+            <nav>
+                <ul>
+                    <li onclick="showPage('page1')"><a href="#">종신</a></li>
+                    <li class="separator"></li>
+                    <li onclick="showPage('page2')"><a href="#">어린이</a></li>
+                    <li class="separator"></li>
+                    <li onclick="showPage('page3')"><a href="#">상해</a></li>
+                    <li class="separator"></li>
+                    <li onclick="showPage('page4')"><a href="#">건강</a></li>
+                    <li class="separator"></li>
+                    <li onclick="showPage('page5')"><a href="#">변액</a></li>
+                    <li class="separator"></li>
+                    <li onclick="showPage('page6')"><a href="#">연금저축</a></li>
+                    <li class="separator"></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="Insurance_type_explain">
+            <div class="group" id="page1">
+                <div class="Insurance_type_grape1"></div>
+                <div class="Insurance_type_grape2"><br></div>
+                <div class="Insurance_type_ex"></div>
+            </div>
+            <div class="group" id="page2">
+                <div class="Insurance_type_grape1"></div>
+                <div class="Insurance_type_grape2"></div>
+                <div class="Insurance_type_ex"></div>
+            </div>
+            <div class="group" id="page3">
+                <div class="Insurance_type_grape1"></div>
+                <div class="Insurance_type_grape2"></div>
+                <div class="Insurance_type_ex"></div>
+            </div>
+            <div class="group" id="page4">
+                <div class="Insurance_type_grape1"></div>
+                <div class="Insurance_type_grape2"></div>
+                <div class="Insurance_type_ex"></div>
+            </div>
+            <div class="group" id="page5">
+                <div class="Insurance_type_grape1"></div>
+                <div class="Insurance_type_grape2"></div>
+                <div class="Insurance_type_ex"></div>
+            </div>
+            <div class="group" id="page6">
+                <div class="Insurance_type_grape1"></div>
+                <div class="Insurance_type_grape2"></div>
+                <div class="Insurance_type_ex"></div>
+            </div>
+        </div>
+        <div class="checkandsearch_box">
+            <div class="search_box">
+                <input type="text" id="searchInput" placeholder="검색어를 입력하세요">
+                <button id="searchButton2">검색</button>
+            </div>
+            
+        <div class="check_box">  
+            <div>
+                <label for="age">연령:</label>
+                <select id="age" name="age">
+                    <option value="0~15">0세 ~ 15세</option>
+                    <option value="16~25">16세 ~ 25세</option>
+                    <option value="26~35">26세 ~ 35세</option>
+                    <option value="36~45">36세 ~ 45세</option>
+                    <option value="46~55">46세 ~ 55세</option>
+                    <option value="56이상">56세 이상</option>
+                </select>
+            </div>
+            <div>
+                <label>성별:</label>
+                <input type="radio" id="male" name="gender" value="male">
+                <label for="male">남</label>
+                <input type="radio" id="female" name="gender" value="female">
+                <label for="female">여</label>
+                <input type="radio" id="all" name="gender" value="all">
+                <label for="all">전체</label>
+            </div>
+            <div>
+                <label>보험료(만원)</label>
+                <input type="radio" id="0~5" name="premium" value="0~5">
+                <label for="0~5">0~5</label>
+                <input type="radio" id="5~10" name="premium" value="5~10">
+                <label for="5~10">5~10</label>
+                <input type="radio" id="10~15" name="premium" value="10~15">
+                <label for="10~15">10~15</label>
+                <input type="radio" id="15~20" name="premium" value="15~20">
+                <label for="15~20">15~20</label>
+            </div>
+            <div>
+                <button id="searchButton1">검색</button>
+                
+            </div>
+        </div>
+</div>
+   
+        <div class="result_box">
+        <div class="result" style="display: none;"></div>
+        
+        </div>
+        <footer>
+            <p>Imma</p>
+        </footer>
+    </div>
+    <script>
+    // 페이지 초기화
+    var groups = document.querySelectorAll('.Insurance_type_explain .group');
+    for (var i = 0; i < groups.length; i++) {
+        groups[i].style.display = 'none';
+    }
+
+    // 이전에 선택한 페이지 ID를 가져옴
+    var savedPageId = localStorage.getItem('selectedPage');
+
+    // 이전에 저장된 페이지가 있다면 해당 페이지를 보이도록 설정
+    if (savedPageId) {
+        showPage(savedPageId);
+    } else {
+        // 초기로드 시 "page1"을 보이게 함
+        showPage('page1');
+    }
+
+    function showPage(pageId) {
+        // 모든 페이지 숨기기
+        for (var i = 0; i < groups.length; i++) {
+            groups[i].style.display = 'none';
+        }
+
+        // 선택한 페이지 보이기
+        var selectedGroup = document.getElementById(pageId);
+        if (selectedGroup) {
+            selectedGroup.style.display = 'block';
+        }
+
+        // 선택한 페이지 ID를 저장
+        localStorage.setItem('selectedPage', pageId);
+    }
+
+    // 검색 버튼 요소를 가져오기
+    const searchButton = document.getElementById("searchButton1");
+   
+    
+
+    // 결과를 나타낼 요소 가져오기
+    const resultDiv = document.querySelector(".result");
+
+    // 검색 버튼에 클릭 이벤트 리스너 추가
+    searchButton.addEventListener("click", function () {
+        // 여기에서 실제 검색 로직을 수행하고 결과를 resultDiv에 표시하는 코드를 작성합니다.
+        // 예를 들어, 간단한 텍스트 결과를 표시하는 경우:
+        resultDiv.textContent = "검색 결과가 여기에 표시됩니다.";
+        // 결과 화면을 보이도록 스타일을 변경합니다.
+        resultDiv.style.display = "block";
+    });
+
+    // JavaScript
+document.addEventListener("DOMContentLoaded", function () {
+    // 검색 버튼 클릭 시 이벤트 처리
+    document.getElementById("searchButton2").addEventListener("click", function () {
+        // 검색 결과를 보이도록 변경
+        document.querySelector(".result").style.display = "block";
+        
+        // 검색 결과를 여기에 표시 (이 부분은 실제 검색 결과를 나타내는 코드로 대체해야 함)
+        document.querySelector(".result").innerHTML = "검색 결과가 여기에 나타납니다.";
+    });
+});
+
+    </script>
+
+</body>
+</html>
