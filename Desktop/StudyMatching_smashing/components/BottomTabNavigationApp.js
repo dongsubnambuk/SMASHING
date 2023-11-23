@@ -5,6 +5,7 @@ import { Text, View, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Studymain from './Studymain';
 import Studyserachbtn from './Studyserachbtn';
+import Studyplusbtn from './Studyplusbtn';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,8 +27,10 @@ function StudyScreen({ navigation }) {
      <Studyserachbtn/>
       <TouchableOpacity onPress={() => navigation.navigate(Studymain)}>
       </TouchableOpacity>
+      <Studyplusbtn/>
       <TouchableOpacity onPress={() => navigation.navigate(Studyserachbtn)}>
       </TouchableOpacity>
+    
     </View>
   );
 }
@@ -64,6 +67,7 @@ function BottomTabNavigationApp() {
           tabBarStyle: {},
           headerShown: false, // 헤더 표시 여부
           headerTitle: 'SMASHING', // 헤더 제목
+          
         }}>
         <Tab.Screen
           name="Home"
