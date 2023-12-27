@@ -1,5 +1,5 @@
+// BottomTabNavigationApp.js
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -19,18 +19,12 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function StudyScreen({ navigation }) {
+function StudyScreen() {
   return (
     <View>
-     
-     <Studymain/>
-     <Studyserachbtn/>
-      <TouchableOpacity onPress={() => navigation.navigate(Studymain)}>
-      </TouchableOpacity>
-      <Studyplusbtn/>
-      <TouchableOpacity onPress={() => navigation.navigate(Studyserachbtn)}>
-      </TouchableOpacity>
-    
+      <Studymain />
+      <Studyserachbtn />
+      <Studyplusbtn />
     </View>
   );
 }
@@ -40,7 +34,6 @@ function NotificationScreen({ navigation }) {
     <View>
       {/* 게시판 화면 내용 */}
       <TouchableOpacity onPress={() => navigation.navigate('Details')}>
-        
       </TouchableOpacity>
     </View>
   );
@@ -51,7 +44,6 @@ function MypageScreen({ navigation }) {
     <View>
       {/* 마이페이지 화면 내용 */}
       <TouchableOpacity onPress={() => navigation.navigate('Details')}>
-        
       </TouchableOpacity>
     </View>
   );
@@ -59,58 +51,55 @@ function MypageScreen({ navigation }) {
 
 function BottomTabNavigationApp() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          tabBarActiveTintColor: '#3D4AE7',
-          tabBarStyle: {},
-          headerShown: false, // 헤더 표시 여부
-          headerTitle: 'SMASHING', // 헤더 제목
-          
-        }}>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            title: '홈',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="home" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Study"
-          component={StudyScreen}
-          options={{
-            title: '스터디',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="menu-book" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Notification"
-          component={NotificationScreen}
-          options={{
-            title: '게시판',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="dashboard" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Message"
-          component={MypageScreen}
-          options={{
-            title: '마이페이지',
-            tabBarIcon: ({ color, size }) => (
-              <Icon name="contact-page" color={color} size={size} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        tabBarActiveTintColor: '#3D4AE7',
+        tabBarStyle: {},
+        headerShown: false,
+        headerTitle: 'SMASHING',
+      }}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          title: '홈',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Study"
+        component={StudyScreen}
+        options={{
+          title: '스터디',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="menu-book" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notification"
+        component={NotificationScreen}
+        options={{
+          title: '게시판',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="dashboard" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Message"
+        component={MypageScreen}
+        options={{
+          title: '마이페이지',
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="contact-page" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 
