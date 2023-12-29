@@ -1,15 +1,7 @@
+// Studyplus.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, FlatList, Button, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-// import firebase from '../firebaseConfig'; 
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-
-const db = firebase.firestore();
 
 const Studyplus = () => {
   const [studygroupName, setStudygroupName] = useState('');
@@ -43,19 +35,8 @@ const Studyplus = () => {
   };
 
   const onCreateStudyPress = () => {
-    // Firestore에 스터디 정보 추가
-    db.collection('studies').add({
-      studygroupName,
-      selectedCategory,
-      studyPeriod,
-      // 추가적인 필드들도 필요에 따라 추가
-    })
-    .then((docRef) => {
-      console.log('Document written with ID: ', docRef.id);
-    })
-    .catch((error) => {
-      console.error('Error adding document: ', error);
-    });
+    // TODO: 실제로 서버와 통신하여 스터디를 생성하는 로직을 추가하세요.
+    alert(`스터디명: ${studygroupName}\n인원수: ${selectedCategory}\n학습 기간: ${studyPeriod}`);
   };
 
   return (
@@ -93,9 +74,7 @@ const Studyplus = () => {
           animationType="slide"
           transparent={true}
           visible={isCategoryModalVisible}
-          onRequestClose={() => {
-            setCategoryModalVisible(false);
-          }}
+          onRequestClose={() => setCategoryModalVisible(false)}
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
@@ -117,9 +96,7 @@ const Studyplus = () => {
           animationType="slide"
           transparent={true}
           visible={isCalendarVisible}
-          onRequestClose={() => {
-            setCalendarVisible(false);
-          }}
+          onRequestClose={() => setCalendarVisible(false)}
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
@@ -136,11 +113,12 @@ const Studyplus = () => {
           </View>
         </Modal>
 
-        <Button
-          title="스터디 생성하기"
+        <TouchableOpacity
+          style={styles.createStudyButton}
           onPress={onCreateStudyPress}
-          color="#3D4AE7"
-        />
+        >
+          <Text style={styles.createStudyButtonText}>스터디 생성하기</Text>
+        </TouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
   );
