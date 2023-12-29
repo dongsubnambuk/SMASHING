@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigationApp from './components/BottomTabNavigationApp';
 import Studyplus from './components/Studyplus';
+import { Calendar } from 'react-native-calendars';
 
 const Stack = createStackNavigator();
 
