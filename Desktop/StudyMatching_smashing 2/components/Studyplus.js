@@ -2,6 +2,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, FlatList, Button, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, addDoc, collection } from 'firebase/firestore';
+import { firebaseConfig } from '../firebaseConfig';
+
+const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
+
 
 const Studyplus = () => {
   const [studygroupName, setStudygroupName] = useState('');
@@ -34,11 +41,22 @@ const Studyplus = () => {
     setCalendarVisible(false);
   };
 
-  const onCreateStudyPress = () => {
-    // TODO: 실제로 서버와 통신하여 스터디를 생성하는 로직을 추가하세요.
-    alert(`스터디명: ${studygroupName}\n인원수: ${selectedCategory}\n학습 기간: ${studyPeriod}`);
+const onCreateStudyPress = async () => {
+    try {
+      const docRef = await addDoc(collection(firestore, 'studies'), {
+        studygroupName,
+        selectedCategory,
+        studyPeriod,
+      });
+  
+      alert(`스터디 생성이 완료되었습니다. 스터디 ID: ${docRef.id}`);
+    } catch (error) {
+      console.error('스터디 생성 오류:', error);
+      alert(`스터디 생성 중 오류가 발생했습니다.`);
+    }
   };
-
+  
+  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>

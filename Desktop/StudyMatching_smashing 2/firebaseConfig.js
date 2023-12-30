@@ -1,4 +1,6 @@
 
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 const firebaseConfig = {
   apiKey: "AIzaSyDBAwwjuO4Z3h7vwUGIz-LIPwbQAFQPjS8",
   authDomain: "final-smashing.firebaseapp.com",
@@ -11,4 +13,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export default firebaseConfig;
+const app = initializeApp(firebaseConfig);
+const firestore = getFirestore(app);
+
+export { firestore, firebaseConfig };
