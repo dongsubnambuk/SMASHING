@@ -1,14 +1,15 @@
 // Studyplus.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, FlatList, Button, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, addDoc, collection } from 'firebase/firestore';
 import { firebaseConfig } from '../firebaseConfig';
+import * as Location from 'expo-location'; // expo-location 추가
 
+// 파베 초기화
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
-
 
 const Studyplus = () => {
   const [studygroupName, setStudygroupName] = useState('');
@@ -16,6 +17,8 @@ const Studyplus = () => {
   const [studyPeriod, setStudyPeriod] = useState('');
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [isCalendarVisible, setCalendarVisible] = useState(false);
+  const [location, setLocation] = useState(null);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
 
   const categories = [
     { label: '인원수선택', value: '' },
@@ -41,22 +44,55 @@ const Studyplus = () => {
     setCalendarVisible(false);
   };
 
-const onCreateStudyPress = async () => {
+  const getLocation = async () => {
     try {
+      // 위치 권한 요청
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      
+      if (status !== 'granted') {
+        console.error('Location permission not granted');
+        alert('위치 권한이 허용되어 있지 않습니다.');
+        return;
+      }
+
+      // 현재 위치 가져오기
+      let userLocation = await Location.getCurrentPositionAsync({});
+      setLocation(userLocation.coords);
+
+      // 사용자의 위치를 파이어베이스에 저장
+      if (userLocation) {
+        await addDoc(collection(firestore, 'userLocations'), {
+          latitude: userLocation.coords.latitude,
+          longitude: userLocation.coords.longitude,
+        });
+      }
+
+      // 위치 확인 메시지 업데이트
+      setConfirmationMessage('확인했습니다!');
+    } catch (error) {
+      console.error('Error getting location: ', error);
+      alert('위치 정보를 가져오는 데 문제가 발생했습니다.');
+    }
+  };
+
+  const onCreateStudyPress = async () => {
+    try {
+      // 스터디 생성
       const docRef = await addDoc(collection(firestore, 'studies'), {
         studygroupName,
         selectedCategory,
         studyPeriod,
+        latitude: location ? location.latitude : null,
+        longitude: location ? location.longitude : null,
       });
-  
-      alert(`스터디 생성이 완료되었습니다. 스터디 ID: ${docRef.id}`);
+
+      alert(`스터디 생성이 완료되었습니다.`);
     } catch (error) {
       console.error('스터디 생성 오류:', error);
       alert(`스터디 생성 중 오류가 발생했습니다.`);
     }
   };
-  
-  
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
@@ -87,6 +123,17 @@ const onCreateStudyPress = async () => {
             {studyPeriod ? `학습 기간: ${studyPeriod}` : '학습 기간 선택'}
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.locationButton}
+          onPress={getLocation}
+        >
+          <Text style={styles.locationButtonText}>내 위치 설정하기</Text>
+        </TouchableOpacity>
+
+        {confirmationMessage !== '' && (
+          <Text style={styles.confirmationMessage}>{confirmationMessage}</Text>
+        )}
 
         <Modal
           animationType="slide"
@@ -184,6 +231,27 @@ const styles = StyleSheet.create({
   categoryBoxText: {
     color: 'black',
     fontSize: 16,
+  },
+  locationButton: {
+    top: '11%',
+    margin: 15,
+    padding: 15,
+    backgroundColor: '#3D4AE7',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  locationButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  confirmationMessage: {
+    top: '11%',
+    margin: 15,
+    color: 'green',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
