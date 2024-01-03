@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'rea
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
+import 'firebase/storage';
 
 const StudyDetail = ({ route, navigation }) => {
   const { studyId } = route.params;

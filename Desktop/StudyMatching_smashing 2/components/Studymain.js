@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import Studyplusbtn from './Studyplusbtn';
 import { useNavigation } from '@react-navigation/native';
-
+import Studyserachbtn from './Studyserachbtn';
 
 const Studymain = () => {
   return (
@@ -14,6 +14,8 @@ const Studymain = () => {
       <Text style={styles.mystudy_under}>대충 있어 보이는 말</Text>
       <Text style={styles.wantstudy}>원하는 스터디를 찾으세요!</Text>
       <Image source={require('../assets/studymain.png')} style={styles.image} />
+      <Studyserachbtn />
+      <Studyplusbtn />
     </View>
   );
 };
