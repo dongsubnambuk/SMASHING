@@ -3,9 +3,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Studymain from './Studymain';
-import Studyserachbtn from './Studyserachbtn';
-import Studyplusbtn from './Studyplusbtn';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -22,9 +20,7 @@ function HomeScreen({ navigation }) {
 function StudyScreen() {
   return (
     <View>
-      <Studymain />
-      <Studyserachbtn />
-      <Studyplusbtn />
+     
     </View>
   );
 }
