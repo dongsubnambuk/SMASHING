@@ -10,7 +10,7 @@ const Tab = createBottomTabNavigator();
 function HomeScreen({ navigation }) {
   return (
     <View>
-      {/* 홈 화면 내용 */}
+     
       <TouchableOpacity onPress={() => navigation.navigate('Details')}>
       </TouchableOpacity>
     </View>
@@ -28,7 +28,7 @@ function StudyScreen() {
 function NotificationScreen({ navigation }) {
   return (
     <View>
-      {/* 게시판 화면 내용 */}
+     
       <TouchableOpacity onPress={() => navigation.navigate('Details')}>
       </TouchableOpacity>
     </View>
