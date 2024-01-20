@@ -1,0 +1,16 @@
+npm install
+
+npm install @react-navigation/native
+
+npm install @react-navigation/stack
+
+npm install firebase
+
+npm install @react-navigation/bottom-tabs
+
+npm install react-native-calendars
+
+npm install react-native-elements
+
+npm install date-fns
+
