@@ -11,18 +11,20 @@ export default function CalendarScreen({ navigation }) {
       title: '제목입니다.',
       contents: '내용입니다.',
       date: '2024-01-02',
+      color: '#FFB800',
     },
     {
       id: 2,
       title: '제목입니다.',
       contents: '내용입니다.',
       date: '2024-01-04',
+      color: '#FF0000',
     },
   ];
 
   const markedDates = posts.reduce((acc, current) => {
     const formattedDate = format(new Date(current.date), 'yyyy-MM-dd');
-    acc[formattedDate] = { marked: true };
+    acc[formattedDate] = { marked: true, dotColor: current.color };
     return acc;
   }, {});
 
