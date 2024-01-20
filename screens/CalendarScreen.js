@@ -22,7 +22,7 @@ export default function CalendarScreen({ navigation }) {
 
   const markedDates = posts.reduce((acc, current) => {
     const formattedDate = format(new Date(current.date), 'yyyy-MM-dd');
-    acc[formattedDate] = { marked: true, dotColor: 'red' };
+    acc[formattedDate] = { marked: true };
     return acc;
   }, {});
 
@@ -43,7 +43,7 @@ export default function CalendarScreen({ navigation }) {
         theme={{
           selectedDayBackgroundColor: '#009688',
           arrowColor: '#009688',
-          dotColor: '#009688',
+          dotColor: 'red',
           todayTextColor: '#009688',
         }}
         onDayPress={(day) => {
