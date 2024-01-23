@@ -20,9 +20,6 @@ export { firestore };
 const Stack = createStackNavigator();
 
 const App = ({ navigation }) => {
-  const handleButtonClick = () => {
-    // 버튼이 눌렸을 때 수행할 동작 추가
-  };
   const handlePlusButton = () => {
     // 버튼이 눌렸을 때 수행할 동작 추가
   };
@@ -39,9 +36,6 @@ const App = ({ navigation }) => {
       <SafeAreaView style={styles.headerContainer}>
         <View style={styles.header}>
           <Image style={styles.headerImage} source={require('./assets/header.png')} />
-          <TouchableOpacity onPress={handleButtonClick} style={styles.button}>
-            <Text style={styles.buttonText}>내 스터디</Text>
-          </TouchableOpacity>
           <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
             <Entypo name="plus" size={35} color="black" />
           </TouchableOpacity>
