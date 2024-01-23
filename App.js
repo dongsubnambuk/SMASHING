@@ -10,6 +10,8 @@ import { firebaseConfig } from './firebaseConfig';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Entypo } from '@expo/vector-icons';
 
+import MypageScreen from './screens/MypageScreen';
+
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 
@@ -45,11 +47,17 @@ const App = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-      <Stack.Navigator initialRouteName="BottomTabNavigationApp">
+      <Stack.Navigator screenOptions={{
+        headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
+      }} initialRouteName="BottomTabNavigationApp">
         <Stack.Screen
           name="BottomTabNavigationApp"
           component={BottomTabNavigationApp}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MypageScreen"
+          component={MypageScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
