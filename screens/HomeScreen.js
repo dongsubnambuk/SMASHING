@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, } from 'react-nati
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView } from 'react-native-gesture-handler';
-import { fonts } from 'react-native-elements/dist/config';
 
 const HomeScreen = () => {
   const navigation = useNavigation(); // useNavigation 훅 사용
 
   const handleButtonOnline = () => {
-    navigation.navigate('MypageScreen'); // MypageScreen으로 이동
+    navigation.navigate('MypageScreen'); // 임시로 MypageScreen으로 이동
   };
+
   const handleButtonOffline = () => {
     // 버튼이 눌렸을 때 수행할 동작 추가
   };
