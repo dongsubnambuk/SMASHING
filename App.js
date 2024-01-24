@@ -41,14 +41,12 @@ const App = ({ navigation }) => {
         <View>
           <StatusBar />
         </View>
-        <SafeAreaView style={styles.headerContainer}>
-          <View style={styles.header}>
-            <Image style={styles.headerImage} source={require('./assets/header.png')} />
-            <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
-              <Entypo name="plus" size={windowWidth * 0.07} color="black" />
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
+        <View style={styles.header}>
+          <Image style={styles.headerImage} resizeMode="contain" source={require('./assets/header.png')} />
+          <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
+            <Entypo name="plus" size={windowWidth * 0.07} color="black" />
+          </TouchableOpacity>
+        </View>
         <Stack.Navigator screenOptions={{
           headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
         }} initialRouteName="BottomTabNavigationApp">
@@ -72,18 +70,15 @@ const App = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  headerContainer: {
-  },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: windowWidth * 0.05,
     marginVertical: windowHeight * 0.02,
   },
   headerImage: {
     width: windowWidth * 0.51,
-    height: windowHeight * 0.03,
   },
   plusButton: { 
   }
