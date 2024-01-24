@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Entypo } from '@expo/vector-icons';
 
 import MypageScreen from './screens/MypageScreen';
+import MapScreen from './screens/MapScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -58,6 +59,10 @@ const App = ({ navigation }) => {
         <Stack.Screen
           name="MypageScreen"
           component={MypageScreen}
+        />
+        <Stack.Screen
+          name="MapScreen"
+          component={MapScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

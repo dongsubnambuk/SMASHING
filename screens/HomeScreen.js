@@ -11,7 +11,7 @@ const HomeScreen = () => {
   const navigation = useNavigation(); // useNavigation 훅 사용
 
   const handleButtonOnline = () => {
-    navigation.navigate('MypageScreen'); // 임시로 MypageScreen으로 이동
+    navigation.navigate('MapScreen'); // 임시로 MypageScreen으로 이동
   };
 
   const handleButtonOffline = () => {

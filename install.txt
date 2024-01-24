@@ -13,3 +13,8 @@ npm install react-native-calendars
 npm install react-native-elements
 
 npm install date-fns
+
+<Map 실험>
+npm install react-native-maps
+
+npm install expo-location
