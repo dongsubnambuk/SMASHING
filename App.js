@@ -1,6 +1,6 @@
 // App.js
 import React from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigationApp from './components/BottomTabNavigationApp';
@@ -11,6 +11,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Entypo } from '@expo/vector-icons';
 
 import MypageScreen from './screens/MypageScreen';
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -33,11 +36,14 @@ const App = ({ navigation }) => {
           background: 'white',
         },
       }}>
+      <View>
+        <StatusBar />
+      </View>
       <SafeAreaView style={styles.headerContainer}>
         <View style={styles.header}>
           <Image style={styles.headerImage} source={require('./assets/header.png')} />
           <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
-            <Entypo name="plus" size={35} color="black" />
+            <Entypo name="plus" size={windowWidth * 0.07} color="black" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -60,32 +66,19 @@ const App = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginHorizontal: windowWidth * 0.05,
+    marginVertical: windowHeight * 0.02,
   },
   headerImage: {
-    width: 200,
-    height: 23.4,
+    width: windowWidth * 0.51,
+    height: windowHeight * 0.03,
   },
-  button: {
-    marginLeft: 'auto', // 오른쪽으로 이동
-    backgroundColor: '#3D4AE7',
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 15,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  plusButton: {
-    marginLeft: 10,
+  plusButton: { 
   }
 });
 

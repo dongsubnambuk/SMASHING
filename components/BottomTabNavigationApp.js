@@ -1,7 +1,6 @@
-// BottomTabNavigationApp.js
 import React from 'react';
+import { Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import HomeScreen from '../screens/HomeScreen';
@@ -10,7 +9,12 @@ import NotificationScreen from '../screens/NotificationScreen';
 import MypageScreen from '../screens/MypageScreen';
 import CalendarScreen from '../screens/CalendarScreen';
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
 const Tab = createBottomTabNavigator();
+
+const iconSize = windowWidth * 0.09; // 하단바 아이콘 크기
 
 function BottomTabNavigationApp() {
   return (
@@ -18,7 +22,8 @@ function BottomTabNavigationApp() {
       initialRouteName="Home"
       screenOptions={{
         tabBarActiveTintColor: '#3D4AE7',
-        tabBarStyle: {},
+        tabBarStyle: {height: windowHeight * 0.09, paddingBottom: windowHeight * 0.01}, // 하단바 높이
+        tabBarLabelStyle: {fontSize: windowWidth * 0.035},
         headerShown: false,
         headerTitle: 'SMASHING',
       }}>
@@ -27,8 +32,8 @@ function BottomTabNavigationApp() {
         component={HomeScreen}
         options={{
           title: '홈',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="home" color={color} size={size} />
+          tabBarIcon: ({ color }) => (
+            <Icon name="home" color={color} size={iconSize} />
           ),
         }}
       />
@@ -37,8 +42,8 @@ function BottomTabNavigationApp() {
         component={StudyScreen}
         options={{
           title: '스터디',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="menu-book" color={color} size={size} />
+          tabBarIcon: ({ color }) => (
+            <Icon name="menu-book" color={color} size={iconSize} />
           ),
         }}
       />
@@ -47,8 +52,8 @@ function BottomTabNavigationApp() {
         component={NotificationScreen}
         options={{
           title: '게시판',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="dashboard" color={color} size={size} />
+          tabBarIcon: ({ color }) => (
+            <Icon name="dashboard" color={color} size={iconSize} />
           ),
         }}
       />
@@ -57,8 +62,8 @@ function BottomTabNavigationApp() {
         component={CalendarScreen}
         options={{
           title: '일정',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="calendar-today" color={color} size={size} />
+          tabBarIcon: ({ color }) => (
+            <Icon name="calendar-today" color={color} size={iconSize} />
           ),
         }}
       />
@@ -67,8 +72,8 @@ function BottomTabNavigationApp() {
         component={MypageScreen}
         options={{
           title: '마이페이지',
-          tabBarIcon: ({ color, size }) => (
-            <Icon name="contact-page" color={color} size={size} />
+          tabBarIcon: ({ color }) => (
+            <Icon name="contact-page" color={color} size={iconSize} />
           ),
         }}
       />
