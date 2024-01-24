@@ -29,7 +29,7 @@ const HomeScreen = () => {
         </Text>
       </View>
       <View style={styles.searchSection}>
-        <Ionicons style={styles.searchIcon} name="search" size={windowWidth * 0.075} color="#3D4AE7" />
+        <Ionicons style={styles.searchIcon} resizeMode="contain" name="search" size={windowHeight * 0.04} color="#3D4AE7" />
         <TextInput
           placeholder={"게시물 찾기"}
           style={styles.input}
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     height: windowHeight * 0.05,
   },
   searchIcon: {
-    padding: windowWidth * 0.01,
+    padding: windowHeight * 0.005,
   },
   input: {
     flex: 1,

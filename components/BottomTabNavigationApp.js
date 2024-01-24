@@ -22,7 +22,7 @@ function BottomTabNavigationApp() {
       initialRouteName="Home"
       screenOptions={{
         tabBarActiveTintColor: '#3D4AE7',
-        tabBarStyle: {height: windowHeight * 0.09, paddingVertical: windowHeight * 0.01}, // 하단바 높이
+        tabBarStyle: {height: windowHeight * 0.09, paddingBottom: windowHeight * 0.01}, // 하단바 높이
         tabBarLabelStyle: {fontSize: windowWidth * 0.035},
         headerShown: false,
         headerTitle: 'SMASHING',
