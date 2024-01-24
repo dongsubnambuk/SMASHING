@@ -29,43 +29,45 @@ const App = ({ navigation }) => {
   };
 
   return (
-    <NavigationContainer
-      theme={{
-        ...DefaultTheme,
-        colors: {
-          ...DefaultTheme.colors,
-          background: 'white',
-        },
-      }}>
-      <View>
-        <StatusBar />
-      </View>
-      <SafeAreaView style={styles.headerContainer}>
-        <View style={styles.header}>
-          <Image style={styles.headerImage} source={require('./assets/header.png')} />
-          <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
-            <Entypo name="plus" size={windowWidth * 0.07} color="black" />
-          </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1 }}>
+      <NavigationContainer
+        theme={{
+          ...DefaultTheme,
+          colors: {
+            ...DefaultTheme.colors,
+            background: 'white',
+          },
+        }}>
+        <View>
+          <StatusBar />
         </View>
-      </SafeAreaView>
-      <Stack.Navigator screenOptions={{
-        headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
-      }} initialRouteName="BottomTabNavigationApp">
-        <Stack.Screen
-          name="BottomTabNavigationApp"
-          component={BottomTabNavigationApp}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="MypageScreen"
-          component={MypageScreen}
-        />
-        <Stack.Screen
-          name="MapScreen"
-          component={MapScreen}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+        <SafeAreaView style={styles.headerContainer}>
+          <View style={styles.header}>
+            <Image style={styles.headerImage} source={require('./assets/header.png')} />
+            <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
+              <Entypo name="plus" size={windowWidth * 0.07} color="black" />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+        <Stack.Navigator screenOptions={{
+          headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
+        }} initialRouteName="BottomTabNavigationApp">
+          <Stack.Screen
+            name="BottomTabNavigationApp"
+            component={BottomTabNavigationApp}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="MypageScreen"
+            component={MypageScreen}
+          />
+          <Stack.Screen
+            name="MapScreen"
+            component={MapScreen}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
   );
 };
 
