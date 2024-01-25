@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const HomeScreen = () => {
+const StudyScreen = () => {
   return (
     <View style={styles.ScreenText}>
       <Text>스터디</Text>
@@ -14,10 +14,10 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   ScreenText: {
-    top: windowHeight * 0.4,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
 });
 
-export default HomeScreen;
+export default StudyScreen;

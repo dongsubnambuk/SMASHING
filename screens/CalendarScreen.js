@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Calendar } from 'react-native-calendars';
 import { format } from 'date-fns';
 import { Entypo } from '@expo/vector-icons';
@@ -7,7 +8,13 @@ import { Entypo } from '@expo/vector-icons';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-export default function CalendarScreen({ navigation }) {
+export default function CalendarScreen() {
+  const navigation = useNavigation(); // useNavigation 훅 사용
+
+  const handleNewBtn = () => {
+    navigation.navigate('NewScheduleScreen'); // 임시로 MypageScreen으로 이동
+  };
+
   const posts = [
     {
       id: 1,
@@ -55,6 +62,9 @@ export default function CalendarScreen({ navigation }) {
           setSelectedDate(new Date(day.dateString));
         }}
       />
+      <TouchableOpacity onPress={handleNewBtn} style={styles.newBtn}>
+          <Text style={{fontSize: 15, fontWeight: '600'}}>일정 추가</Text>
+      </TouchableOpacity>
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleContainerText}>
           This Month's Study Schedule
@@ -97,6 +107,14 @@ export default function CalendarScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  newBtn: {
+    backgroundColor: '#D8F6CE',
+    alignItems: 'center',
+    paddingVertical: windowHeight * 0.01,
+    marginVertical: windowHeight * 0.01,
+    marginHorizontal: windowWidth * 0.05,
+    borderRadius: 10,
   },
   scheduleContainer: {
     alignItems: 'center',

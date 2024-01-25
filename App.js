@@ -12,6 +12,7 @@ import { Entypo } from '@expo/vector-icons';
 
 import MypageScreen from './screens/MypageScreen';
 import MapScreen from './screens/MapScreen';
+import NewScheduleScreen from './screens/NewScheduleScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -29,7 +30,6 @@ const App = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
       <NavigationContainer
         theme={{
           ...DefaultTheme,
@@ -38,22 +38,19 @@ const App = ({ navigation }) => {
             background: 'white',
           },
         }}>
-        <View>
-          <StatusBar />
-        </View>
-        <View style={styles.header}>
+        <SafeAreaView style={styles.header}>
           <Image style={styles.headerImage} resizeMode="contain" source={require('./assets/header.png')} />
           <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
             <Entypo name="plus" size={windowWidth * 0.07} color="black" />
           </TouchableOpacity>
-        </View>
-        <Stack.Navigator screenOptions={{
+        </SafeAreaView>
+        <Stack.Navigator options={{ headerShown: false }} // 기본 헤더 숨기기
+          screenOptions={{
           headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
-        }} initialRouteName="BottomTabNavigationApp">
+          }} initialRouteName="BottomTabNavigationApp">
           <Stack.Screen
             name="BottomTabNavigationApp"
             component={BottomTabNavigationApp}
-            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="MypageScreen"
@@ -63,9 +60,12 @@ const App = ({ navigation }) => {
             name="MapScreen"
             component={MapScreen}
           />
+          <Stack.Screen
+            name="NewScheduleScreen"
+            component={NewScheduleScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
-    </SafeAreaView>
   );
 };
 
