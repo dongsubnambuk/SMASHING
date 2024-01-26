@@ -6,10 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "expo-location":
-    {
-      "locationAlwaysAndWhenInUsePermission": "Allow $(StudyMatching_smashing) to use your location."
-    },
+  
     "splash": {
       "image": "./assets/Test3.png",
       "backgroundColor": "#3D4AE7",
