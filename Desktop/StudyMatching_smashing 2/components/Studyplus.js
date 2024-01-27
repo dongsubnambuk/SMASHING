@@ -1,22 +1,31 @@
-
-// Studyplus.js
-import React, { useState, useEffect } from 'react';
-import { ScrollView,View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, FlatList, Button, TouchableWithoutFeedback, Keyboard, Image } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import React, { useState, useEffect,useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  Button,
+  Image,
+  TouchableWithoutFeedback,
+  Keyboard, // 추가
+} from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, addDoc, collection } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Storage 관련 import 수정
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { firebaseConfig } from '../firebaseConfig';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system'; // 추가
-import 'firebase/storage';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
-import * as ImageManipulator from 'expo-image-manipulator'; 
-import WebView from 'react-native-webview';  // WebView import 추가
+import { Alert } from 'react-native';
+import { Calendar } from 'react-native-calendars';
+import { Linking } from 'react-native'; 
 
-
-// 파베 초기화
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const storage = getStorage(app);
@@ -25,111 +34,54 @@ const Studyplus = () => {
   const [studygroupName, setStudygroupName] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [studyPeriod, setStudyPeriod] = useState('');
-  const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
-  const [isCalendarVisible, setCalendarVisible] = useState(false);
   const [location, setLocation] = useState(null);
-  const [confirmationMessage, setConfirmationMessage] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
   const [thumbnailURL, setThumbnailURL] = useState('');
-  const [isOnline, setIsOnline] = useState(false); 
-  const navigation = useNavigation();
-  const [kakaoMapUrl, setKakaoMapUrl] = useState(''); 
+  const [isOnline, setIsOnline] = useState(false);
   const [mapVisible, setMapVisible] = useState(false);
-  const [webViewVisible, setWebViewVisible] = useState(false);
   const [initialLocation, setInitialLocation] = useState(null);
+  const [selectedMapLocation, setSelectedMapLocation] = useState(null);
+  const [isCategoryModalVisible, setCategoryModalVisible] = useState(false); // 추가
+  const [isCalendarVisible, setCalendarVisible] = useState(false); // 추가된 부분
+  const [isMapModalVisible, setMapModalVisible] = useState(false); // 맵 모달의 가시성 상태 
+  const [isGoogleMapsModalVisible, setGoogleMapsModalVisible] = useState(false);
+  const [googleMapUrl, setGoogleMapUrl] = useState('');
+  const [searchLocation, setSearchLocation] = useState(null);
+  
+  const mapViewRef = useRef(null);
+  
 
+  const navigation = useNavigation();
 
-
- 
-  const WebViewMap = () => {
-    // location이 없거나 mapVisible이 false이면 null을 반환하도록 수정
-    if (!mapVisible || !initialLocation) {
-      return null;
-    }
-
-    const { latitude, longitude } = initialLocation;
-    const apiKey = 'a36b9a0588e2744f1917a9104e19fb08'; // 카카오맵 API 키
-    const url = `https://map.kakao.com/link/map/${latitude},${longitude}?apikey=${apiKey}`;
-
-    return (
-      <WebView
-        source={{ uri: url }}
-        style={{ flex: 1, width: '100%', height: '100%' }}
-      />
-    );
-  };
-  useEffect(() => {
-    const initializeLocation = async () => {
+  const onLocationSelect = async () => {
+    if (selectedMapLocation) {
       try {
-        // 위치 권한 요청
-        let { status } = await Location.requestForegroundPermissionsAsync();
-
-        if (status !== 'granted') {
-          console.error('Location permission not granted');
-          alert('위치 권한이 허용되어 있지 않습니다.');
-          return;
-        }
-
-        // 현재 위치 가져오기
-        let userLocation = await Location.getCurrentPositionAsync({});
-        
-        // 최초 한 번만 위치 설정
-        if (!initialLocation) {
-          setInitialLocation(userLocation.coords);
-        }
-
-        setLocation(userLocation.coords);
-
-        // 사용자의 위치를 파이어베이스에 저장 (최초 한 번만)
-        if (userLocation && !initialLocation) {
-          await addDoc(collection(firestore, 'userLocations'), {
-            latitude: userLocation.coords.latitude,
-            longitude: userLocation.coords.longitude,
-          });
-        }
-
-        // 위치 확인 메시지 업데이트
-        setConfirmationMessage('확인했습니다!');
-        generateKakaoMapUrl(); // 위치를 가져오고 나서 맵 URL 생성
-        setMapVisible(true); // 맵을 열도록 상태 업데이트
+        // 선택한 위치의 건물명 가져오기
+        const buildingName = await getBuildingName(selectedMapLocation);
+        console.log('Selected Building Name:', buildingName);
+  
+        // 선택한 위치를 Firebase에 저장
+        await addDoc(collection(firestore, 'userSelectedLocations'), {
+          latitude: selectedMapLocation.latitude,
+          longitude: selectedMapLocation.longitude,
+          buildingName: buildingName, // 건물명도 함께 저장
+        });
+  
+        // 위치 초기화 및 지도 닫기
+        setSelectedMapLocation(null);
+        setMapVisible(false);
+  
       } catch (error) {
-        console.error('Error getting location: ', error);
-        alert('위치 정보를 가져오는 데 문제가 발생했습니다.');
+        console.error('Error saving location to Firebase:', error);
+        alert('위치를 Firebase에 저장하는 중 오류가 발생했습니다.');
       }
-    };
-
-    initializeLocation();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialLocation]);
-
-  const openKakaoMap = async () => {
-    try {
-      await initializeLocation(); // 위치를 가져옴
-      setMapVisible(true); // 맵을 열도록 상태 업데이트
-    } catch (error) {
-      console.error('Error opening Kakao Map: ', error);
-      alert('카카오 맵을 열 수 없습니다.');
+    } else {
+      // 선택한 위치가 없는 경우에 대한 처리
+      alert('선택한 위치 정보가 없습니다.');
     }
   };
-
-  const generateKakaoMapUrl = () => {
-    if (!location) {
-      return; // 위치가 없으면 갱신하지 않음
-    }
   
-    const latitude = location.latitude;
-    const longitude = location.longitude;
-    const apiKey = 'a36b9a0588e2744f1917a9104e19fb08'; // 카카오맵 API 키
-    const url = `https://map.kakao.com/link/map/${latitude},${longitude}?apikey=${apiKey}`;
-    setKakaoMapUrl(url);
-  };
   
-  // 위치가 변경될 때마다 카카오맵 URL을 갱신
-  useEffect(() => {
-    generateKakaoMapUrl();
-  }, [location]);
-
   const categories = [
     { label: '인원수선택', value: '' },
     { label: '4명', value: '4명' },
@@ -137,18 +89,140 @@ const Studyplus = () => {
     { label: '8명', value: '8명' },
   ];
 
- useEffect(() => {
-  // 최초 렌더링 시에만 실행
-  const generateKakaoMapUrl = () => {
-    const latitude = location ? location.latitude : 37.56669;
-    const longitude = location ? location.longitude : 126.97847;
-    const apiKey = 'a36b9a0588e2744f1917a9104e19fb08'; // 카카오맵 API 키
-    const url = `https://map.kakao.com/link/map/${latitude},${longitude}?apikey=${apiKey}`;
-    setKakaoMapUrl(url);
+  const openGoogleMaps = () => {
+    if (location) {
+      setGoogleMapsModalVisible(true);
+    } else {
+      alert('위치 정보가 없습니다.');
+    }
   };
 
-  generateKakaoMapUrl();
-}, []); // 빈 의존성 배열로 변경
+  const closeGoogleMapsModal = () => {
+    setGoogleMapsModalVisible(false);
+  };
+
+
+  const onMapClick = (event) => {
+    const clickedLocation = { latitude: event.nativeEvent.coordinate.latitude, longitude: event.nativeEvent.coordinate.longitude };
+    setSelectedMapLocation(clickedLocation);
+    setMapModalVisible(true); // 모달을 열도록 수정
+  };
+  const showConfirmationDialog = () => {
+    Alert.alert(
+      "위치 선택 확인",
+      "이 위치로 선택하시겠습니까?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        { text: "확인", onPress: onLocationSelect },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const initializeLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        console.error('Location permission not granted');
+        alert('위치 권한이 허용되어 있지 않습니다.');
+        return;
+      }
+
+      let userLocation = await Location.getCurrentPositionAsync({});
+
+      if (!initialLocation) {
+        setInitialLocation(userLocation.coords);
+      }
+
+      setLocation(userLocation.coords);
+
+      if (userLocation && !initialLocation) {
+        await addDoc(collection(firestore, 'userLocations'), {
+          latitude: userLocation.coords.latitude,
+          longitude: userLocation.coords.longitude,
+        });
+      }
+
+      setMapVisible(true);
+    } catch (error) {
+      console.error('Error getting location: ', error);
+      alert('위치 정보를 가져오는 데 문제가 발생했습니다.');
+    }
+  };
+
+  useEffect(() => {
+    initializeLocation();
+  }, []);
+
+  const onMapReady = () => {
+    generateGoogleMapUrl();
+  };
+
+
+  const generateGoogleMapUrl = () => {
+    if (!location) {
+      return;
+    }
+
+    const latitude = location.latitude;
+    const longitude = location.longitude;
+    const apiKey = 'AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM';
+    const url = `https://www.google.com/maps?q=${latitude},${longitude}&key=${apiKey}`;
+    setGoogleMapUrl(url);
+  };
+
+  useEffect(() => {
+    generateGoogleMapUrl();
+  }, [location]);
+
+  const getBuildingName = async (location) => {
+    try {
+      if (!location) {
+        return '위치 정보 없음';
+      }
+  
+      const reverseGeocodeResult = await Location.reverseGeocodeAsync({
+        latitude: location.latitude,
+        longitude: location.longitude,
+      });
+  
+      const buildingName = reverseGeocodeResult[0]?.name || '건물명 없음';
+  
+      return buildingName;
+    } catch (error) {
+      console.error('Error getting building name:', error);
+      return '건물명 가져오기 실패';
+    }
+  };
+
+  const onCreateStudyPress = async () => {
+    try {
+      const timestamp = new Date();
+      const buildingName = await getBuildingName(selectedMapLocation);
+  
+      const docRef = await addDoc(collection(firestore, 'studies'), {
+        studygroupName,
+        selectedCategory,
+        studyPeriod,
+        latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
+        longitude: selectedMapLocation ? selectedMapLocation.longitude : null,
+        thumbnail: thumbnailURL,
+        isOnline,
+        buildingName,
+        createdAt: timestamp,
+      });
+  
+      alert(`스터디 생성이 완료되었습니다.`);
+      navigation.goBack();
+    } catch (error) {
+      console.error('스터디 생성 오류:', error);
+      alert(`스터디 생성 중 오류가 발생했습니다.`);
+    }
+  };
 
   const renderCategoryItem = ({ item }) => (
     <TouchableOpacity
@@ -220,41 +294,17 @@ const Studyplus = () => {
     setCalendarVisible(false);
   };
 
-  
-
-
-  const onCreateStudyPress = async () => {
-    try {
-      // 현재 타임스탬프 가져오기
-      const timestamp = new Date();
-
-      // 타임스탬프를 포함하여 새로운 스터디 문서 생성
-      const docRef = await addDoc(collection(firestore, 'studies'), {
-        studygroupName,
-        selectedCategory,
-        studyPeriod,
-        latitude: location ? location.latitude : null,
-        longitude: location ? location.longitude : null,
-        thumbnail: thumbnailURL,
-        isOnline,  // 온라인 여부 추가
-        createdAt: timestamp, // 타임스탬프 필드 추가
-      });
-
-      alert(`스터디 생성이 완료되었습니다.`);
-      navigation.goBack();
-    } catch (error) {
-      console.error('스터디 생성 오류:', error);
-      alert(`스터디 생성 중 오류가 발생했습니다.`);
-    }
-  };
-
   const handleBackPress = () => {
     navigation.goBack();
   };
+  
+  
+  const openMap = () => {
+    initializeLocation();
+    setMapVisible(true);
+  };
 
   return (
-  
-  
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
       <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
@@ -280,57 +330,8 @@ const Studyplus = () => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.categoryBox}
-          onPress={() => setCalendarVisible(true)}
-        >
-          <Text style={styles.categoryBoxText}>
-            {studyPeriod ? `학습 기간: ${studyPeriod}` : '학습 기간 선택'}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.onlineOfflineButtonsContainer}>
-  <TouchableOpacity
-    style={[styles.onlineOfflineButton, isOnline ? styles.selectedButton : null]}
-    onPress={() => setIsOnline(true)}
-  >
-    <Text style={styles.onlineOfflineButtonText}>온라인</Text>
-  </TouchableOpacity>
-  <TouchableOpacity
-    style={[styles.onlineOfflineButton, !isOnline ? styles.selectedButton : null]}
-    onPress={() => setIsOnline(false)}
-  >
-    <Text style={styles.onlineOfflineButtonText}>오프라인</Text>
-  </TouchableOpacity>
-</View>
-
-<TouchableOpacity
-  style={styles.locationButton}
-  onPress={openKakaoMap}
->
-  <Text style={styles.locationButtonText}>내 위치 설정하기</Text>
-</TouchableOpacity>
-{mapVisible && (
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={mapVisible}
-        onRequestClose={() => setMapVisible(false)}
-      >
-        <View style={{ flex: 1 }}>
-          <WebViewMap />
-          <TouchableOpacity
-            style={styles.closeMapButton}
-            onPress={() => setMapVisible(false)}
-          >
-            <Text style={styles.closeMapButtonText}>닫기</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    )}
-
-
-        <Modal
+           {/* 인원수 선택 모달 */}
+           <Modal
           animationType="slide"
           transparent={true}
           visible={isCategoryModalVisible}
@@ -352,6 +353,195 @@ const Studyplus = () => {
           </View>
         </Modal>
 
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isCalendarVisible}
+          onRequestClose={() => setCalendarVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Calendar
+                onDayPress={onDayPress}
+                markedDates={{ [studyPeriod]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' } }}
+              />
+              <Button
+                title="취소"
+                onPress={() => setCalendarVisible(false)}
+                color="#3D4AE7"
+              />
+            </View>
+          </View>
+        </Modal>
+
+        <TouchableOpacity
+          style={styles.categoryBox}
+          onPress={() => setCalendarVisible(true)}
+        >
+          <Text style={styles.categoryBoxText}>
+            {studyPeriod ? `학습 기간: ${studyPeriod}` : '학습 기간 선택'}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.onlineOfflineButtonsContainer}>
+
+
+  <TouchableOpacity
+    style={[styles.onlineOfflineButton, isOnline ? styles.selectedButton : null]}
+    onPress={() => setIsOnline(true)}
+  >
+    <Text style={styles.onlineOfflineButtonText}>온라인</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[styles.onlineOfflineButton, !isOnline ? styles.selectedButton : null]}
+    onPress={() => setIsOnline(false)}
+  >
+    <Text style={styles.onlineOfflineButtonText}>오프라인</Text>
+  </TouchableOpacity>
+</View>
+
+
+<TouchableOpacity
+  style={styles.locationButton}
+  onPress={() => {
+    openMap();
+    setSearchLocation(null); // 검색 결과 초기화
+  }}
+>
+  <Text style={styles.locationButtonText}>스터디 장소 확인</Text>
+</TouchableOpacity>
+
+<Modal
+  animationType="slide"
+  transparent={true}
+  visible={mapVisible}
+  onRequestClose={() => setMapVisible(false)}
+>
+<View style={styles.mapPopup}>
+  <MapView
+    ref={mapViewRef}
+    style={styles.map}
+    initialRegion={{
+      latitude: initialLocation ? initialLocation.latitude : 37.7749,
+      longitude: initialLocation ? initialLocation.longitude : -122.4194,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    }}
+    showsUserLocation={true}
+    onMapReady={onMapReady}
+    onPress={onMapClick}
+    provider={MapView.PROVIDER_GOOGLE}
+    apiKey="AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM"
+  >
+    {selectedMapLocation && (
+      <Marker
+        coordinate={{
+          latitude: selectedMapLocation.latitude,
+          longitude: selectedMapLocation.longitude,
+        }}
+      />
+    )}
+
+    {searchLocation && (
+      <Marker
+        coordinate={{
+          latitude: searchLocation.latitude,
+          longitude: searchLocation.longitude,
+        }}
+        pinColor="green"
+      />
+    )}
+  </MapView>
+
+  <View style={styles.mapSearchContainer}>
+  <GooglePlacesAutocomplete
+  placeholder='Search'
+  onPress={(data, details = null) => {
+    // 'details' is provided when fetchDetails = true
+    console.log(data, details);
+    const selectedPlace = {
+      latitude: details.geometry.location.lat,
+      longitude: details.geometry.location.lng,
+    };
+    setSelectedMapLocation(selectedPlace);
+    setMapModalVisible(true); // 모달을 열도록 수정
+
+    // 추가: 선택한 위치로 지도 이동
+    mapViewRef.current.animateToRegion({
+      latitude: selectedPlace.latitude,
+      longitude: selectedPlace.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+  }}
+  query={{
+    key: 'AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM',
+    language: 'en',
+  }}
+  fetchDetails={true}
+  styles={{
+    container: {
+      flex: 0, // Remove container flex to eliminate padding
+    },
+    textInputContainer: {
+      backgroundColor: 'rgba(0,0,0,0)',
+      borderTopWidth: 0,
+      borderBottomWidth: 0,
+      paddingLeft: 0, // Remove left padding
+      paddingRight: 0, // Remove right padding
+    },
+    textInput: {
+      marginLeft: 0,
+      marginRight: 0,
+      height: 38,
+      color: '#5d5d5d',
+      fontSize: 16,
+    },
+    predefinedPlacesDescription: {
+      color: '#1faadb',
+    },
+  }}
+/>
+
+  </View>
+
+  <TouchableOpacity
+    style={styles.setMapLocationButton}
+    onPress={onLocationSelect}
+  >
+    <Text style={styles.setMapLocationButtonText}>완료</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={styles.closeMapButton}
+    onPress={() => setMapVisible(false)}
+  >
+    <Text style={styles.closeMapButtonText}>닫기</Text>
+  </TouchableOpacity>
+</View>
+</Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isCalendarVisible}
+          onRequestClose={() => setCalendarVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Calendar
+                onDayPress={onDayPress}
+                markedDates={{ [studyPeriod]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' } }}
+              />
+              <Button
+                title="취소"
+                onPress={() => setCalendarVisible(false)}
+                color="#3D4AE7"
+              />
+            </View>
+          </View>
+        </Modal>
         <Modal
           animationType="slide"
           transparent={true}
@@ -532,11 +722,14 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
+
   closeMapButton: {
     position: 'absolute',
     top: 50,
-    left: 20,
+    left: "85%",
     padding: 10,
     backgroundColor: '#3D4AE7',
     borderRadius: 10,
@@ -550,6 +743,77 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  setMapLocationButton: {
+    position: 'absolute',
+    bottom: 25,
+    left: '45%',
+    transform: [{ translateX: -50 }],
+    padding: 15,
+    backgroundColor: '#3D4AE7',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  setMapLocationButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+  },
+  mapContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  mapOverlay: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    right: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapButton: {
+    padding: 15,
+    backgroundColor: '#3D4AE7',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mapButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  mapContainer: {
+    flex: 1,
+  },
+
+  mapPopup: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  mapSearchContainer: {
+    position: 'absolute',
+    top: "9%",
+    left: 0,
+    right: 0,
+    zIndex: 1, // Place search bar above the map
+  },
+
+  
 
 });
 
