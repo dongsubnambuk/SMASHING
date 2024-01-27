@@ -9,13 +9,12 @@ import Studyserachbtn from './Studyserachbtn';
 const Studymain = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>SMASHING</Text>
       <Text style={styles.mystudy}>내 스터디</Text>
       <Text style={styles.mystudy_under}>대충 있어 보이는 말</Text>
       <Text style={styles.wantstudy}>원하는 스터디를 찾으세요!</Text>
       <Image source={require('../assets/studymain.png')} style={styles.image} />
       <Studyserachbtn />
-      <Studyplusbtn />
+     
     </View>
   );
 };
@@ -25,22 +24,14 @@ const styles = StyleSheet.create({
     backgroundColor:"#fff",
     height:"100%",
   },
-  title: {
-    top:"7%",
-    marginLeft:"5%",
-    fontSize: 35,
-    color:"#3D4AE7",
-    fontWeight:"bold"
-   
-  },
   mystudy:{
-    top:"7%",
+    // top:"7%",
     marginLeft:"5%",
     fontSize:28,
     fontWeight:"bold"
   },
   mystudy_under:{
-    top:"8%",
+    // top:"8%",
     marginLeft:"5%",
     fontSize:20,
    

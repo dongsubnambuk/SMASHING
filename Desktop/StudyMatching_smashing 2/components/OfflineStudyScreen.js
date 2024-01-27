@@ -46,7 +46,7 @@ const OfflineStudyScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={30} color="#3D4AE7" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>온라인 스터디 리스트</Text>
+        <Text style={styles.headerTitle}>오프라인 스터디 리스트</Text>
       </View>
       <ScrollView style={styles.studyContainer}>
         {onlineStudyList.map((study, index) => (
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   studyContainer: {
-    top: "5%",
+    // top: "5%",
     width: '90%', // 90% 너비
     alignSelf: 'center', // 가운데 정렬
     marginTop: 10, // 위쪽 여백 조절
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   header: {
-    top: "12%",
+    // top: "12%",
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',

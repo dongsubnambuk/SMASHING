@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   studyContainer: {
-    top: '5%',
+    // top: '5%',
     width: '90%',
     alignSelf: 'center',
     marginTop: 10,
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   header: {
-    top: '12%',
+    // top: '12%',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',

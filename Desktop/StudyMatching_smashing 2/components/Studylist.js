@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   studyItemContainer: {
     marginTop: 10,
@@ -364,11 +364,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 10,
-    marginTop: 10,
+    // marginTop: 10,
   },
   backButton: {
-    top: 10,
-    padding: 10,
+   
+   marginLeft:"85%"
   },
   backButtonText: {
     color: '#3D4AE7',

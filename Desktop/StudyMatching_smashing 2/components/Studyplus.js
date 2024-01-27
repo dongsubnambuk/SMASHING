@@ -344,7 +344,7 @@ const Studyplus = () => {
       <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
           <Text style={styles.backButtonText}>뒤로가기</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>SMASHING</Text>
+      
         <Text style={styles.mystudygroup}>모임 만들기</Text>
         <Text style={styles.mystudygroup_under}>대충 있어 보이는 말</Text>
 
@@ -634,33 +634,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     height: '100%',
   },
-  title: {
-    top: '7%',
-    marginLeft: '5%',
-    fontSize: 35,
-    color: '#3D4AE7',
-    fontWeight: 'bold',
-  },
+ 
   mystudygroup: {
-    top: '7.5%',
+    // top: '7.5%',
     marginLeft: '5%',
     fontSize: 28,
     fontWeight: 'bold',
   },
   mystudygroup_under: {
-    top: '8%',
+    // top: '8%',
     marginLeft: '5%',
     fontSize: 20,
   },
   textInput: {
-    top: '10%',
+    top: '2%',
     margin: 15,
     height: 40,
     borderColor: '#3D4AE7',
     borderWidth: 1.5,
   },
   categoryBox: {
-    top: '11%',
+    top: '2%',
     margin: 15,
     padding: 10,
     borderColor: '#3D4AE7',
@@ -730,16 +724,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   backButton: {
-    top: '5%', // 적절한 위치 조정
-    marginLeft: '5%',
-    padding: 10,
+    // top: '5%', // 적절한 위치 조정
+    marginLeft: '80%',
+    // padding: 10,
   },
   backButtonText: {
     color: '#3D4AE7',
     fontSize: 16,
   },
   onlineOfflineButtonsContainer: {
-    marginTop:"25%",
+    // marginTop:"25%",
     flexDirection: 'row',
     justifyContent: 'space-between',
     margin: 15,
@@ -755,7 +749,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectedButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#697D8C',
     color: '#3D4AE7',
   },
   onlineOfflineButtonText: {

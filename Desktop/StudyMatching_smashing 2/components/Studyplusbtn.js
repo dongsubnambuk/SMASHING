@@ -10,7 +10,7 @@ const Studyplusbtn = () => {
   // 반응형 디자인을 위한 동적 스타일
   const buttonStyle = {
     position: 'absolute',
-    top: '8.6%',
+    // top: '8.6%',
     left: '84%',
     alignItems: 'center',
     justifyContent: 'center',
