@@ -48,38 +48,21 @@ const Studyplus = () => {
   const [googleMapUrl, setGoogleMapUrl] = useState('');
   const [searchLocation, setSearchLocation] = useState(null);
   
+  
   const mapViewRef = useRef(null);
   
 
   const navigation = useNavigation();
 
-  const onLocationSelect = async () => {
+  const onLocationSelect = () => {
     if (selectedMapLocation) {
-      try {
-        // 선택한 위치의 건물명 가져오기
-        const buildingName = await getBuildingName(selectedMapLocation);
-        console.log('Selected Building Name:', buildingName);
-  
-        // 선택한 위치를 Firebase에 저장
-        await addDoc(collection(firestore, 'userSelectedLocations'), {
-          latitude: selectedMapLocation.latitude,
-          longitude: selectedMapLocation.longitude,
-          buildingName: buildingName, // 건물명도 함께 저장
-        });
-  
-        // 위치 초기화 및 지도 닫기
-        setSelectedMapLocation(null);
-        setMapVisible(false);
-  
-      } catch (error) {
-        console.error('Error saving location to Firebase:', error);
-        alert('위치를 Firebase에 저장하는 중 오류가 발생했습니다.');
-      }
+      showConfirmationDialog();
     } else {
       // 선택한 위치가 없는 경우에 대한 처리
       alert('선택한 위치 정보가 없습니다.');
     }
   };
+
   
   
   const categories = [
@@ -116,11 +99,40 @@ const Studyplus = () => {
           text: "취소",
           style: "cancel",
         },
-        { text: "확인", onPress: onLocationSelect },
+        {
+          text: "확인",
+          onPress: () => {
+            saveLocationAndCloseMap();
+            setMapVisible(false); // 맵이 꺼지도록 추가
+          },
+        },
       ],
       { cancelable: false }
     );
   };
+  
+
+  const saveLocationAndCloseMap = async () => {
+    try {
+      // 선택한 위치의 건물명 가져오기
+      const buildingName = await getBuildingName(selectedMapLocation);
+      console.log('Selected Building Name:', buildingName);
+
+      // 선택한 위치를 Firebase에 저장
+      const studyLocationRef = await addDoc(collection(firestore, 'studyLocations'), {
+        latitude: selectedMapLocation.latitude,
+        longitude: selectedMapLocation.longitude,
+        buildingName,
+      });
+
+      // 맵 모달 닫기
+      setMapModalVisible(false);
+    } catch (error) {
+      console.error('Error saving location:', error);
+      alert('위치를 저장하는 중 오류가 발생했습니다.');
+    }
+  };
+
 
   const initializeLocation = async () => {
     try {
@@ -154,9 +166,12 @@ const Studyplus = () => {
     }
   };
 
+ 
   useEffect(() => {
-    initializeLocation();
-  }, []);
+    if (mapVisible) {
+      initializeLocation();
+    }
+  }, [mapVisible]);
 
   const onMapReady = () => {
     generateGoogleMapUrl();
@@ -203,19 +218,31 @@ const Studyplus = () => {
     try {
       const timestamp = new Date();
       const buildingName = await getBuildingName(selectedMapLocation);
-  
+
+      // 스터디 위치 정보를 studyLocations 컬렉션에 저장
+      const studyLocationRef = await addDoc(collection(firestore, 'studyLocations'), {
+        latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
+        longitude: selectedMapLocation ? selectedMapLocation.longitude : null,
+        buildingName,
+      });
+
+      // studyLocations에서 얻은 위치 정보의 ID를 활용하여 studies 컬렉션에 저장
+      const studyLocationId = studyLocationRef.id;
       const docRef = await addDoc(collection(firestore, 'studies'), {
         studygroupName,
         selectedCategory,
         studyPeriod,
-        latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
-        longitude: selectedMapLocation ? selectedMapLocation.longitude : null,
+        location: {
+          id: studyLocationId,
+          latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
+          longitude: selectedMapLocation ? selectedMapLocation.longitude : null,
+          buildingName,
+        },
         thumbnail: thumbnailURL,
         isOnline,
-        buildingName,
         createdAt: timestamp,
       });
-  
+
       alert(`스터디 생성이 완료되었습니다.`);
       navigation.goBack();
     } catch (error) {
@@ -300,9 +327,16 @@ const Studyplus = () => {
   
   
   const openMap = () => {
-    initializeLocation();
     setMapVisible(true);
   };
+
+  const handleMapPress = (event) => {
+    const { nativeEvent } = event;
+    // 이제 nativeEvent를 사용할 수 있습니다.
+    Keyboard.dismiss();
+  };
+  
+ 
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -406,7 +440,8 @@ const Studyplus = () => {
   style={styles.locationButton}
   onPress={() => {
     openMap();
-    setSearchLocation(null); // 검색 결과 초기화
+    setSearchLocation(null); 
+ 
   }}
 >
   <Text style={styles.locationButtonText}>스터디 장소 확인</Text>
@@ -420,6 +455,7 @@ const Studyplus = () => {
 >
 <View style={styles.mapPopup}>
   <MapView
+  
     ref={mapViewRef}
     style={styles.map}
     initialRegion={{
@@ -430,7 +466,10 @@ const Studyplus = () => {
     }}
     showsUserLocation={true}
     onMapReady={onMapReady}
-    onPress={onMapClick}
+    onPress={(event) => {
+      handleMapPress(event);
+      onMapClick(event);
+    }}
     provider={MapView.PROVIDER_GOOGLE}
     apiKey="AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM"
   >
@@ -454,12 +493,13 @@ const Studyplus = () => {
     )}
   </MapView>
 
+  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
   <View style={styles.mapSearchContainer}>
   <GooglePlacesAutocomplete
   placeholder='Search'
   onPress={(data, details = null) => {
     // 'details' is provided when fetchDetails = true
-    console.log(data, details);
+    // console.log(data, details);
     const selectedPlace = {
       latitude: details.geometry.location.lat,
       longitude: details.geometry.location.lng,
@@ -495,22 +535,25 @@ const Studyplus = () => {
       marginLeft: 0,
       marginRight: 0,
       height: 38,
-      color: '#5d5d5d',
+      color: 'black',
       fontSize: 16,
     },
     predefinedPlacesDescription: {
       color: '#1faadb',
     },
   }}
+  textInputProps={{
+    placeholderTextColor: 'black', // 기본 입력 텍스트 색상 지정 (예: 흰색)
+  }}
 />
-
   </View>
+  </TouchableWithoutFeedback>
 
   <TouchableOpacity
     style={styles.setMapLocationButton}
     onPress={onLocationSelect}
   >
-    <Text style={styles.setMapLocationButtonText}>완료</Text>
+    <Text style={styles.setMapLocationButtonText}>장소 선택하기</Text>
   </TouchableOpacity>
 
   <TouchableOpacity
@@ -746,7 +789,7 @@ const styles = StyleSheet.create({
   setMapLocationButton: {
     position: 'absolute',
     bottom: 25,
-    left: '45%',
+    left: '48%',
     transform: [{ translateX: -50 }],
     padding: 15,
     backgroundColor: '#3D4AE7',
@@ -807,7 +850,7 @@ const styles = StyleSheet.create({
   },
   mapSearchContainer: {
     position: 'absolute',
-    top: "9%",
+    top: "11%",
     left: 0,
     right: 0,
     zIndex: 1, // Place search bar above the map
