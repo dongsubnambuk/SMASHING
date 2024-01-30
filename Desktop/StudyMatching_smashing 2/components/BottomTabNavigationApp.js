@@ -8,20 +8,15 @@ import Studyserachbtn from './Studyserachbtn';
 import Studyplusbtn from './Studyplusbtn';
 import HomeScreen from './HomeScreen';
 import Calendar from './Calendar';
+import StudyList from './StudyList';
 
 
 const Tab = createBottomTabNavigator();
 
 
 
-function StudyScreen() {
-  return (
-    <View>
-    {/* <StudyList/> */}
-      
-    </View>
-  );
-}
+
+
 
 function NotificationScreen({ navigation }) {
   return (
@@ -73,7 +68,7 @@ function BottomTabNavigationApp() {
       />
       <Tab.Screen
         name="Study"
-        component={StudyScreen}
+        component={StudyList}
         options={{
           title: '스터디',
           tabBarIcon: ({ color, size }) => (

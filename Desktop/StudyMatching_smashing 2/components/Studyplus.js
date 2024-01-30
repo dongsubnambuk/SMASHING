@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import Slider from '@react-native-community/slider';
-
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -196,6 +196,15 @@ const Studyplus = () => {
       const timestamp = new Date();
       const buildingName = await getBuildingName(selectedMapLocation);
   
+      // 현재 인증된 사용자 정보 가져오기
+      const auth = getAuth();
+      let currentUser = null;
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+        }
+      });
+  
       // 스터디 위치 정보를 studyLocations 컬렉션에 저장
       const studyLocationRef = await addDoc(collection(firestore, 'studyLocations'), {
         latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
@@ -217,6 +226,7 @@ const Studyplus = () => {
         },
         thumbnail: thumbnailURL,
         isOnline,
+        createdBy: currentUser ? currentUser.uid : null, // 현재 사용자의 UID 저장
         createdAt: timestamp,
       });
   

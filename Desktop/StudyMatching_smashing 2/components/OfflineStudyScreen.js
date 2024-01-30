@@ -24,9 +24,11 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
+const auth = getAuth();
 
 const OfflineStudyScreen = ({ navigation }) => {
   const [offlineStudyList, setOfflineStudyList] = useState([]);
@@ -38,6 +40,7 @@ const OfflineStudyScreen = ({ navigation }) => {
   const [isMapModalVisible, setMapModalVisible] = useState(false);
   const [selectedStudyLocation, setSelectedStudyLocation] = useState(null);
   const [selectedStudyItem, setSelectedStudyItem] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const getOfflineStudyList = async () => {
@@ -64,6 +67,18 @@ const OfflineStudyScreen = ({ navigation }) => {
     };
 
     getOfflineStudyList(); // 함수 호출
+  }, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    // 컴포넌트가 언마운트될 때 감지 중지
+    return () => unsubscribe();
   }, []);
 
   // 위치 권한 요청 함수
@@ -104,17 +119,18 @@ const OfflineStudyScreen = ({ navigation }) => {
   const applyForStudy = async () => {
     try {
       console.log('Selected Study:', selectedStudy);
-
-      if (!selectedStudy || !selectedStudy.id) {
+  
+      // 대체할 속성의 이름으로 변경 (예: name)
+      if (!selectedStudy || !selectedStudy.studygroupName) {
         console.error('선택된 스터디가 유효하지 않습니다.');
         return;
       }
   
       // Firestore의 "offlineStudies" 컬렉션에 새로운 문서를 추가합니다.
       const offlineStudiesCollection = collection(firestore, 'offlineStudies');
-      await addDoc(offlineStudiesCollection, {
-        studyId: selectedStudy.id,
-        userId: '사용자의 고유 ID', // 실제 사용자의 고유 ID로 대체해야 합니다.
+      const newDocRef = await addDoc(offlineStudiesCollection, {
+        ...selectedStudy, // 스터디의 모든 정보를 추가
+        userId: currentUser ? currentUser.uid : null,
         appliedAt: serverTimestamp(),
       });
   
@@ -122,11 +138,18 @@ const OfflineStudyScreen = ({ navigation }) => {
   
       // 스터디 모달을 닫습니다.
       setStudyModalVisible(false);
+  
+      // 여기에서 방에 진입하는 로직을 추가합니다.
+      // 방에 참여하는 화면으로 이동하거나 다른 방에 진입하는 로직을 여기에 추가하세요.
+      // 예를 들어, 다른 화면으로 이동하는 경우:
+      // navigation.navigate('StudyRoom', { studyId: selectedStudy.id });
     } catch (error) {
       console.error('스터디 신청 오류:', error);
       // TODO: 오류 발생 시 사용자에게 알림을 추가할 수 있습니다.
     }
   };
+
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>

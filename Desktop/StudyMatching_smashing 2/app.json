@@ -6,12 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-  
     "splash": {
       "image": "./assets/Test3.png",
       "backgroundColor": "#3D4AE7",
-      "width": 50, 
-      "height": 50 
+      "width": 50,
+      "height": 50
     },
     "assetBundlePatterns": [
       "**/*"
@@ -27,10 +26,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.dongseop.StudyMatching_smashing"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a58a68c6-393e-4c8d-af85-c44c369615ea"
+      }
     }
   }
 }
