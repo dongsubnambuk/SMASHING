@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   Modal,
-  FlatList,
   Button,
   Image,
   TouchableWithoutFeedback,
@@ -24,7 +23,8 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { Linking } from 'react-native'; 
+import Slider from '@react-native-community/slider';
+
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -41,12 +41,11 @@ const Studyplus = () => {
   const [mapVisible, setMapVisible] = useState(false);
   const [initialLocation, setInitialLocation] = useState(null);
   const [selectedMapLocation, setSelectedMapLocation] = useState(null);
-  const [isCategoryModalVisible, setCategoryModalVisible] = useState(false); // 추가
   const [isCalendarVisible, setCalendarVisible] = useState(false); // 추가된 부분
   const [isMapModalVisible, setMapModalVisible] = useState(false); // 맵 모달의 가시성 상태 
-  const [isGoogleMapsModalVisible, setGoogleMapsModalVisible] = useState(false);
   const [googleMapUrl, setGoogleMapUrl] = useState('');
   const [searchLocation, setSearchLocation] = useState(null);
+  const [selectedPeople, setSelectedPeople] = useState(4);
   
   
   const mapViewRef = useRef(null);
@@ -62,28 +61,6 @@ const Studyplus = () => {
       alert('선택한 위치 정보가 없습니다.');
     }
   };
-
-  
-  
-  const categories = [
-    { label: '인원수선택', value: '' },
-    { label: '4명', value: '4명' },
-    { label: '6명', value: '6명' },
-    { label: '8명', value: '8명' },
-  ];
-
-  const openGoogleMaps = () => {
-    if (location) {
-      setGoogleMapsModalVisible(true);
-    } else {
-      alert('위치 정보가 없습니다.');
-    }
-  };
-
-  const closeGoogleMapsModal = () => {
-    setGoogleMapsModalVisible(false);
-  };
-
 
   const onMapClick = (event) => {
     const clickedLocation = { latitude: event.nativeEvent.coordinate.latitude, longitude: event.nativeEvent.coordinate.longitude };
@@ -218,14 +195,14 @@ const Studyplus = () => {
     try {
       const timestamp = new Date();
       const buildingName = await getBuildingName(selectedMapLocation);
-
+  
       // 스터디 위치 정보를 studyLocations 컬렉션에 저장
       const studyLocationRef = await addDoc(collection(firestore, 'studyLocations'), {
         latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
         longitude: selectedMapLocation ? selectedMapLocation.longitude : null,
         buildingName,
       });
-
+  
       // studyLocations에서 얻은 위치 정보의 ID를 활용하여 studies 컬렉션에 저장
       const studyLocationId = studyLocationRef.id;
       const docRef = await addDoc(collection(firestore, 'studies'), {
@@ -242,7 +219,7 @@ const Studyplus = () => {
         isOnline,
         createdAt: timestamp,
       });
-
+  
       alert(`스터디 생성이 완료되었습니다.`);
       navigation.goBack();
     } catch (error) {
@@ -250,18 +227,6 @@ const Studyplus = () => {
       alert(`스터디 생성 중 오류가 발생했습니다.`);
     }
   };
-
-  const renderCategoryItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.categoryItem}
-      onPress={() => {
-        setSelectedCategory(item.value);
-        setCategoryModalVisible(false);
-      }}
-    >
-      <Text style={styles.categoryItemText}>{item.label}</Text>
-    </TouchableOpacity>
-  );
 
   const openImagePicker = async () => {
     try {
@@ -341,229 +306,200 @@ const Studyplus = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-      <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          <Text style={styles.backButtonText}>뒤로가기</Text>
-        </TouchableOpacity>
-      
-        <Text style={styles.mystudygroup}>모임 만들기</Text>
+        <View style={styles.textContainer}>
+            <Text style={styles.mystudygroup}>모임 만들기</Text>
+          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+              <Text style={styles.backButtonText}>뒤로가기</Text>
+            </TouchableOpacity>
+        </View>
         <Text style={styles.mystudygroup_under}>대충 있어 보이는 말</Text>
 
-        <TextInput
-          style={styles.textInput}
-          placeholder="모임명"
-          placeholderTextColor="#3D4AE7"
-          onChangeText={(text) => setStudygroupName(text)}
-          value={studygroupName}
-        />
-        <TouchableOpacity
-          style={styles.categoryBox}
-          onPress={() => setCategoryModalVisible(true)}
-        >
-          <Text style={styles.categoryBoxText}>
-            {selectedCategory ? `선택된 인원수: ${selectedCategory}` : '인원수선택'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.textInputContainer}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="모임명"
+            placeholderTextColor='#7d7d7d'
+            onChangeText={(text) => setStudygroupName(text)}
+            value={studygroupName}
+          />
+        </View>
 
-           {/* 인원수 선택 모달 */}
-           <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isCategoryModalVisible}
-          onRequestClose={() => setCategoryModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <FlatList
-                data={categories}
-                renderItem={renderCategoryItem}
-                keyExtractor={(item) => item.value}
-              />
-              <Button
-                title="취소"
-                onPress={() => setCategoryModalVisible(false)}
-                color="#3D4AE7"
-              />
-            </View>
-          </View>
-        </Modal>
+        <View style={styles.categoryBoxContainer}>
+          <Text style={styles.categoryLabel}>{`선택된 인원수: ${selectedPeople}명`}</Text>
+          <View style={styles.categoryBox}/>
 
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isCalendarVisible}
-          onRequestClose={() => setCalendarVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Calendar
-                onDayPress={onDayPress}
-                markedDates={{ [studyPeriod]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' } }}
-              />
-              <Button
-                title="취소"
-                onPress={() => setCalendarVisible(false)}
-                color="#3D4AE7"
-              />
-            </View>
-          </View>
-        </Modal>
+          <Slider
+            style={styles.slider}
+            minimumValue={4}
+            maximumValue={10}
+            step={1}
+            value={selectedPeople}
+            onValueChange={(value) => {
+              setSelectedPeople(value);
+              setSelectedCategory(`${value}명`); // 선택된 카테고리도 업데이트
+            }}
+            minimumTrackTintColor="#3D4AE7" // 최소 트랙의 색상
+            maximumTrackTintColor="#89a5f7" // 최대 트랙의 색상
+            thumbTintColor="#3D4AE7" // 슬라이더 썸의 색상
+          />
+        </View>
 
-        <TouchableOpacity
-          style={styles.categoryBox}
-          onPress={() => setCalendarVisible(true)}
-        >
-          <Text style={styles.categoryBoxText}>
-            {studyPeriod ? `학습 기간: ${studyPeriod}` : '학습 기간 선택'}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.periodBoxContainer}>
+          <TouchableOpacity
+            style={styles.periodBox}
+            onPress={() => setCalendarVisible(true)}
+          >
+            <Text style={styles.periodBoxText}>
+              {studyPeriod ? `학습 기간: ${studyPeriod}` : '학습 기간 선택'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.onlineOfflineButtonsContainer}>
+          <TouchableOpacity
+            style={[styles.onlineOfflineButton, isOnline ? styles.selectedButton : null]}
+            onPress={() => setIsOnline(true)}
+          >
+            <Text style={styles.onlineOfflineButtonText}>온라인</Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity
+            style={[styles.onlineOfflineButton, !isOnline ? styles.selectedButton : null]}
+            onPress={() => setIsOnline(false)}
+          >
+            <Text style={styles.onlineOfflineButtonText}>오프라인</Text>
+          </TouchableOpacity>
+        </View>
 
-  <TouchableOpacity
-    style={[styles.onlineOfflineButton, isOnline ? styles.selectedButton : null]}
-    onPress={() => setIsOnline(true)}
-  >
-    <Text style={styles.onlineOfflineButtonText}>온라인</Text>
-  </TouchableOpacity>
+        <View style={styles.thumbnailLocationButtonsContainer}>
+        <TouchableOpacity
+          style={styles.locationButton}
+          onPress={() => {
+            openMap();
+            setSearchLocation(null); 
+        
+          }}
+        >
+          <Text style={styles.locationButtonText}>스터디 장소</Text>
+        </TouchableOpacity>
 
-  <TouchableOpacity
-    style={[styles.onlineOfflineButton, !isOnline ? styles.selectedButton : null]}
-    onPress={() => setIsOnline(false)}
-  >
-    <Text style={styles.onlineOfflineButtonText}>오프라인</Text>
-  </TouchableOpacity>
-</View>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={mapVisible}
+          onRequestClose={() => setMapVisible(false)}
+        >
+        <View style={styles.mapPopup}>
+          <MapView
+          
+            ref={mapViewRef}
+            style={styles.map}
+            initialRegion={{
+              latitude: initialLocation ? initialLocation.latitude : 37.7749,
+              longitude: initialLocation ? initialLocation.longitude : -122.4194,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            showsUserLocation={true}
+            onMapReady={onMapReady}
+            onPress={(event) => {
+              handleMapPress(event);
+              onMapClick(event);
+            }}
+            provider={MapView.PROVIDER_GOOGLE}
+            apiKey="AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM"
+          >
+            {selectedMapLocation && (
+              <Marker
+                coordinate={{
+                  latitude: selectedMapLocation.latitude,
+                  longitude: selectedMapLocation.longitude,
+                }}
+              />
+            )}
 
+            {searchLocation && (
+              <Marker
+                coordinate={{
+                  latitude: searchLocation.latitude,
+                  longitude: searchLocation.longitude,
+                }}
+                pinColor="green"
+              />
+            )}
+          </MapView>
 
-<TouchableOpacity
-  style={styles.locationButton}
-  onPress={() => {
-    openMap();
-    setSearchLocation(null); 
- 
-  }}
->
-  <Text style={styles.locationButtonText}>스터디 장소 확인</Text>
-</TouchableOpacity>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.mapSearchContainer}>
+          <GooglePlacesAutocomplete
+          placeholder='Search'
+          onPress={(data, details = null) => {
+            // 'details' is provided when fetchDetails = true
+            // console.log(data, details);
+            const selectedPlace = {
+              latitude: details.geometry.location.lat,
+              longitude: details.geometry.location.lng,
+            };
+            setSelectedMapLocation(selectedPlace);
+            setMapModalVisible(true); // 모달을 열도록 수정
 
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={mapVisible}
-  onRequestClose={() => setMapVisible(false)}
->
-<View style={styles.mapPopup}>
-  <MapView
-  
-    ref={mapViewRef}
-    style={styles.map}
-    initialRegion={{
-      latitude: initialLocation ? initialLocation.latitude : 37.7749,
-      longitude: initialLocation ? initialLocation.longitude : -122.4194,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    }}
-    showsUserLocation={true}
-    onMapReady={onMapReady}
-    onPress={(event) => {
-      handleMapPress(event);
-      onMapClick(event);
-    }}
-    provider={MapView.PROVIDER_GOOGLE}
-    apiKey="AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM"
-  >
-    {selectedMapLocation && (
-      <Marker
-        coordinate={{
-          latitude: selectedMapLocation.latitude,
-          longitude: selectedMapLocation.longitude,
-        }}
-      />
-    )}
+            // 추가: 선택한 위치로 지도 이동
+            mapViewRef.current.animateToRegion({
+              latitude: selectedPlace.latitude,
+              longitude: selectedPlace.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            });
+          }}
+          query={{
+            key: 'AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM',
+            language: 'en',
+          }}
+          fetchDetails={true}
+          styles={{
+            container: {
+              flex: 0, // Remove container flex to eliminate padding
+            },
+            textInputContainer: {
+              backgroundColor: 'rgba(0,0,0,0)',
+              borderTopWidth: 0,
+              borderBottomWidth: 0,
+              paddingLeft: 0, // Remove left padding
+              paddingRight: 0, // Remove right padding
+            },
+            textInput: {
+              marginLeft: 0,
+              marginRight: 0,
+              height: 38,
+              color: 'black',
+              fontSize: 16,
+            },
+            predefinedPlacesDescription: {
+              color: '#1faadb',
+            },
+          }}
+          textInputProps={{
+            placeholderTextColor: 'black', // 기본 입력 텍스트 색상 지정 (예: 흰색)
+          }}
+        />
+          </View>
+          </TouchableWithoutFeedback>
 
-    {searchLocation && (
-      <Marker
-        coordinate={{
-          latitude: searchLocation.latitude,
-          longitude: searchLocation.longitude,
-        }}
-        pinColor="green"
-      />
-    )}
-  </MapView>
+          <TouchableOpacity
+            style={styles.setMapLocationButton}
+            onPress={onLocationSelect}
+          >
+            <Text style={styles.setMapLocationButtonText}>장소 선택하기</Text>
+          </TouchableOpacity>
 
-  <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-  <View style={styles.mapSearchContainer}>
-  <GooglePlacesAutocomplete
-  placeholder='Search'
-  onPress={(data, details = null) => {
-    // 'details' is provided when fetchDetails = true
-    // console.log(data, details);
-    const selectedPlace = {
-      latitude: details.geometry.location.lat,
-      longitude: details.geometry.location.lng,
-    };
-    setSelectedMapLocation(selectedPlace);
-    setMapModalVisible(true); // 모달을 열도록 수정
-
-    // 추가: 선택한 위치로 지도 이동
-    mapViewRef.current.animateToRegion({
-      latitude: selectedPlace.latitude,
-      longitude: selectedPlace.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    });
-  }}
-  query={{
-    key: 'AIzaSyClF-Zniv8crtjJdTG-C49u_2Cvt14qYqM',
-    language: 'en',
-  }}
-  fetchDetails={true}
-  styles={{
-    container: {
-      flex: 0, // Remove container flex to eliminate padding
-    },
-    textInputContainer: {
-      backgroundColor: 'rgba(0,0,0,0)',
-      borderTopWidth: 0,
-      borderBottomWidth: 0,
-      paddingLeft: 0, // Remove left padding
-      paddingRight: 0, // Remove right padding
-    },
-    textInput: {
-      marginLeft: 0,
-      marginRight: 0,
-      height: 38,
-      color: 'black',
-      fontSize: 16,
-    },
-    predefinedPlacesDescription: {
-      color: '#1faadb',
-    },
-  }}
-  textInputProps={{
-    placeholderTextColor: 'black', // 기본 입력 텍스트 색상 지정 (예: 흰색)
-  }}
-/>
-  </View>
-  </TouchableWithoutFeedback>
-
-  <TouchableOpacity
-    style={styles.setMapLocationButton}
-    onPress={onLocationSelect}
-  >
-    <Text style={styles.setMapLocationButtonText}>장소 선택하기</Text>
-  </TouchableOpacity>
-
-  <TouchableOpacity
-    style={styles.closeMapButton}
-    onPress={() => setMapVisible(false)}
-  >
-    <Text style={styles.closeMapButtonText}>닫기</Text>
-  </TouchableOpacity>
-</View>
-</Modal>
+          <TouchableOpacity
+            style={styles.closeMapButton}
+            onPress={() => setMapVisible(false)}
+          >
+            <Text style={styles.closeMapButtonText}>닫기</Text>
+          </TouchableOpacity>
+        </View>
+        </Modal>
 
         <Modal
           animationType="slide"
@@ -607,15 +543,15 @@ const Studyplus = () => {
         </Modal>
 
         <TouchableOpacity
-          style={styles.createStudyButton}
+          style={styles.thumbnailButton}
           onPress={openImagePicker}
         >
-          <Text style={styles.createStudyButtonText}>스터디 섬네일 삽입</Text>
+          <Text style={styles.thumbnailButtonText}>스터디 섬네일</Text>
         </TouchableOpacity>
         {thumbnail && (
           <Image source={{ uri: thumbnail }} style={styles.thumbnailPreview} />
         )}
-
+      </View>
         <TouchableOpacity
           style={styles.createStudyButton}
           onPress={onCreateStudyPress}
@@ -634,6 +570,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     height: '100%',
   },
+
+  textContainer: {
+    flexDirection: 'row', // 추가된 부분
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    position: 'relative',
+  },
  
   mystudygroup: {
     // top: '7.5%',
@@ -646,40 +589,146 @@ const styles = StyleSheet.create({
     marginLeft: '5%',
     fontSize: 20,
   },
-  textInput: {
-    top: '2%',
-    margin: 15,
-    height: 40,
-    borderColor: '#3D4AE7',
-    borderWidth: 1.5,
+
+  backButton: {
+    // top: '5%', // 적절한 위치 조정
+    marginLeft: '50%',
+    // padding: 10,
   },
-  categoryBox: {
-    top: '2%',
-    margin: 15,
-    padding: 10,
-    borderColor: '#3D4AE7',
-    borderWidth: 1.5,
+  backButtonText: {
+    color: '#3D4AE7',
+    fontSize: 16,
+  },
+
+  textInputContainer: {
+    marginTop: '5%',
+    marginHorizontal: 15,
+    borderRadius: 10,
+    padding: '8%',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+    borderWidth: 1, // 밑줄 추가
+    borderColor: '#3D4AE7', // 밑줄 색상 지정
   },
+
+  textInput: {
+    width: '100%',
+    textAlign: 'center',
+    position: 'absolute',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+
+  categoryBoxContainer: {
+    marginTop: '5%',
+    marginHorizontal: 15,
+    padding: '5%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3D4AE7', // 밑줄 색상 지정
+  },
+
+  categoryLabel: {
+    fontSize: 16,
+    alignItems: 'center',
+    color: 'black',
+    fontWeight: 'bold'
+  },
+  
+  // 업데이트된 스타일
+  categoryBox: {
+    padding: '3%',
+    flexDirection: 'column', // 수직 방향으로 정렬
+    alignItems: 'center',
+  },
+  
   categoryBoxText: {
     color: 'black',
     fontSize: 16,
+    fontWeight: 'bold'
   },
-  locationButton: {
-    // top: '11%',
-    margin: 15,
+
+  slider: {
+    width: '100%',
+    alignSelf: 'center', // 슬라이더를 가운데 정렬
+  },
+  
+  sliderValue: {
+    fontSize: 16,
+    textAlign: 'center',
+  },
+
+  periodBoxContainer: {
+    marginTop: '5%',
+    marginHorizontal: 15,
     padding: 15,
-    backgroundColor: '#3D4AE7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3D4AE7', // 밑줄 색상 지정
+  },
+  
+  periodBox: {
+    borderRadius: 10,
+    flexDirection: 'column', // 수직 방향으로 정렬
+    alignItems: 'flex-start',
+  },
+  
+  periodBoxText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+
+  thumbnailLocationButtonsContainer: {
+    // marginTop:"25%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 10,
+    marginTop: '5%',
+  },
+
+  thumbnailButton: {
+    flex: 1,
+    marginTop: 5,
+    marginHorizontal: 5,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3D4AE7', // 밑줄 색상 지정
     justifyContent: 'center',
     alignItems: 'center',
   },
-  locationButtonText: {
-    color: '#fff',
+  thumbnailButtonText: {
+    color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
   },
+
+  locationButton: {
+    flex: 1,
+    marginTop: 5,
+    marginHorizontal: 5,
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3D4AE7', // 밑줄 색상 지정
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  locationButtonText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
   confirmationMessage: {
     top: '11%',
     margin: 15,
@@ -709,9 +758,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'black',
   },
+
   createStudyButton: {
     // top: '15%',
-    margin: 15,
+    width: '40%',
+    marginHorizontal: '30%',
+    marginTop: '5%',
     padding: 15,
     backgroundColor: '#3D4AE7',
     borderRadius: 10,
@@ -719,41 +771,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   createStudyButtonText: {
-    color: '#fff',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
-  backButton: {
-    // top: '5%', // 적절한 위치 조정
-    marginLeft: '80%',
-    // padding: 10,
-  },
-  backButtonText: {
-    color: '#3D4AE7',
-    fontSize: 16,
-  },
+  
   onlineOfflineButtonsContainer: {
-    // marginTop:"25%",
     flexDirection: 'row',
     justifyContent: 'space-between',
-    margin: 15,
+    marginHorizontal: 10,
+    marginTop: '5%',
   },
+
   onlineOfflineButton: {
-    
     flex: 1,
-    margin: 5,
+    marginTop: 5,
+    marginHorizontal: 5,
     padding: 15,
-    backgroundColor: '#3D4AE7',
+    backgroundColor: '#89a5f7',
     borderRadius: 10,
+    borderColor: '#3D4AE7', // 밑줄 색상 지정
     justifyContent: 'center',
     alignItems: 'center',
   },
   selectedButton: {
-    backgroundColor: '#697D8C',
-    color: '#3D4AE7',
+    backgroundColor: '#3d65e7',
+    color: '#3d65e7',
   },
   onlineOfflineButtonText: {
-    color: '#000',
+    color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -849,8 +895,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 1, // Place search bar above the map
   },
-
-  
 
 });
 

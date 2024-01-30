@@ -8,7 +8,7 @@ import Studyserachbtn from './Studyserachbtn';
 import Studyplusbtn from './Studyplusbtn';
 import HomeScreen from './HomeScreen';
 import Calendar from './Calendar';
-import StudyList from './Studylist';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +17,7 @@ const Tab = createBottomTabNavigator();
 function StudyScreen() {
   return (
     <View>
-    <StudyList/>
+    {/* <StudyList/> */}
       
     </View>
   );

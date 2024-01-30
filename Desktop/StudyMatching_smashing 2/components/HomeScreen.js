@@ -20,98 +20,19 @@ const HomeScreen = () => {
   const [cachedLocation, setCachedLocation] = useState(null);
   const [locationListener, setLocationListener] = useState(null);
 
-  const checkLocationPermission = async () => {
-    try {
-      const { statusForeground, statusBackground } = await Location.requestForegroundPermissionsAsync();
+ 
 
-      if (statusForeground === 'granted' && statusBackground === 'granted') {
-        // 권한이 승인되면 위치 리스너 등록
-        const listener = await Location.watchPositionAsync(
-          { accuracy: Location.Accuracy.BestForNavigation, timeInterval: 5000, distanceInterval: 5 },
-          (location) => {
-            setCachedLocation(location.coords);
-          }
-        );
-
-        setLocationListener(listener);
-
-        // 위치 권한이 승인되었다는 정보를 AsyncStorage에 저장
-        await AsyncStorage.setItem('locationPermission', 'granted');
-
-        setLocationPermission(true);
-      } else {
-        console.error('Location permission not granted');
-        setLocationPermission(false);
-      }
-    } catch (error) {
-      console.error('Error checking location permission: ', error);
-      setLocationPermission(false);
-    }
+  const handleButtonOnline = () => {
+    // 권한 확인, 위치 관련 코드 삭제
+    navigation.navigate('OnlineStudyScreen');
   };
 
-  const handleButtonOnline = async () => {
-    try {
-      if (!locationPermission) {
-        // 위치 권한이 없을 때만 폼 보이기
-        setModalVisible(true);
-        return;
-      }
 
-      if (cachedLocation) {
-        // 캐시된 위치 정보 사용
-        console.log('Cached Location:', cachedLocation);
-        navigation.navigate('OnlineStudyScreen');
-      } else {
-        console.warn('No cached location available.');
-        // 캐시된 위치가 없으면 현재 위치 가져와서 캐시
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setCachedLocation(currentLocation.coords);
-        console.log('Current Location:', currentLocation.coords);
-        navigation.navigate('OnlineStudyScreen');
-      }
-    } catch (error) {
-      console.error('Error getting location: ', error);
-      setLocationPermission(false);
-      setModalVisible(true);
-    }
-  };
 
   const handleButtonOffline = () => {
     navigation.navigate('OfflineStudyScreen');
   };
 
-  const handleModalConfirm = async () => {
-    setModalVisible(false);
-
-    try {
-      // 위치 권한이 승인되면 현재 위치 받아오기
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        setLocationPermission(true);
-
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        setCachedLocation(currentLocation.coords);
-
-        Alert.alert('위치 권한이 승인되었습니다.', '온라인 스터디 페이지로 이동합니다.', [
-          {
-            text: '확인',
-            onPress: () => navigation.navigate('OnlineStudyScreen'),
-          },
-        ]);
-      } else {
-        console.error('Location permission not granted');
-        setLocationPermission(false);
-      }
-    } catch (error) {
-      console.error('Error getting location: ', error);
-      setLocationPermission(false);
-    }
-  };
-
-  useEffect(() => {
-    // 앱이 로딩되고 메인 화면에 진입할 때 위치 권한 확인
-    checkLocationPermission();
-  }, []);
 
   return (
   <View style={styles.container}>
@@ -157,24 +78,6 @@ const HomeScreen = () => {
         </ScrollView>
       </View>
   
-      
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => {
-          setModalVisible(!isModalVisible);
-        }}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>앱을 사용하기 위해서는 위치 권한이 필요합니다.</Text>
-            <TouchableOpacity onPress={handleModalConfirm} style={styles.modalButton}>
-              <Text style={styles.modalButtonText}>확인</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };

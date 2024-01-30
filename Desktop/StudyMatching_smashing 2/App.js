@@ -1,84 +1,154 @@
-import React, { useEffect } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
-import { NavigationContainer,DefaultTheme } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, Dimensions } from 'react-native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigationApp from './components/BottomTabNavigationApp';
 import Studyplus from './components/Studyplus';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from './firebaseConfig';
-import StudyList from './components/Studylist';
+import StudyList from './components/StudyList';
 import StudyDetail from './components/StudyDetail';
 import 'firebase/storage';
 import Studymain from './components/Studymain';
-import * as SplashScreen from 'expo-splash-screen';
 import HomeScreen from './components/HomeScreen';
 import Calendar from './components/Calendar';
 import OfflineStudyScreen from './components/OfflineStudyScreen';
 import OnlineStudyScreen from './components/OnlineStudyScreen';
+import LoginPage from './components/LoginPage';
+import SignUpFirstScreen from './components/SignUpFirstScreen';
+import SerchId from './components/SerchId';
+import SignUpTypeSelection from './components/SignUpTypeSelection';
+import EmailSignUpComponent from './components/EmailSignUpComponent';
+import NicknameCreationPage from './components/NicknameCreationPage';
+import SignUpCompletionPage from './components/SignUpCompletionPage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-
+import { initializeAuth, getReactNativePersistence, signInWithEmailAndPassword, getAuth } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 const firebaseApp = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebaseApp);
+const auth = getAuth();
 
 export { firestore };
 
 const Stack = createStackNavigator();
 
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-const handlePlusButton = () => {
-  // 버튼이 눌렸을 때 수행할 동작 추가
-};
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    });
 
+    // Clean up the subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
-const App = ({ navigation }) => {
-  // useEffect(() => {
-  //   async function initializeFirebase() {
-  //     // 스플래시 스크린 숨김 방지
-  //     SplashScreen.preventAutoHideAsync();
+  // Initialize AsyncStorage for Firebase Auth
+  useEffect(() => {
+    (async () => {
+      try {
+        const firebaseData = await ReactNativeAsyncStorage.getItem('firebase');
+        if (!firebaseData) {
+          await ReactNativeAsyncStorage.setItem('firebase', 'initialized');
+        }
+      } catch (error) {
+        console.error('Error initializing AsyncStorage for Firebase:', error);
+      }
+    })();
+  }, []);
 
-  //     try {
-  //       // Firebase 초기화
-  //       await initializeApp(firebaseConfig);
+  const handleLogin = async (email, password) => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      console.log('로그인 성공');
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error('로그인 실패:', error.message);
+    }
+  };
 
-  //       // 다른 초기화 작업 수행
-
-  //       // 2초 후에 SplashScreen.hideAsync() 호출
-  //       setTimeout(async () => {
-  //         SplashScreen.hideAsync();
-  //       }, 2000);
-  //     } catch (e) {
-  //       console.warn(e);
-  //     }
-  //   }
-
-  //   initializeFirebase();
-  // }, []);
 
   return (
     <NavigationContainer
-    theme={{
-      ...DefaultTheme,
-      colors: {
-        ...DefaultTheme.colors,
-        background: 'white',
-      },
-    }}>
-       <SafeAreaView style={styles.header}>
-       <Text style={styles.title}>SMASHING</Text>
-        </SafeAreaView>
+      theme={{
+        ...DefaultTheme,
+        colors: {
+          ...DefaultTheme.colors,
+          background: 'white',
+        },
+      }}>
+      <SafeAreaView style={styles.header}>
+        <Text style={styles.title}>SMASHING</Text>
+      </SafeAreaView>
 
-      <Stack.Navigator initialRouteName="BottomTabNavigationApp">
-        <Stack.Screen
-          name="BottomTabNavigationApp"
-          component={BottomTabNavigationApp}
-          options={{ headerShown: false }}
-        />
+      <Stack.Navigator initialRouteName={isLoggedIn ? "BottomTabNavigationApp" : "SignUpFirstScreen"}>
+        {isLoggedIn ? (
+          <Stack.Screen
+            name="BottomTabNavigationApp"
+            component={BottomTabNavigationApp}
+            options={{ headerShown: false }}
+          />
+        ) : (
+          <>
+            <Stack.Screen
+              name="SignUpFirstScreen"
+              options={{ headerShown: false }}
+            >
+              {(props) => (
+                <SignUpFirstScreen
+                  {...props}
+                  onLogin={(email, password) => handleLogin(email, password)}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen
+              name="SerchId"
+              component={SerchId}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="LoginPage"
+              component={LoginPage}
+              options={{ headerShown: false }}
+            />
+            {(props) => (
+                <LoginPage
+                  {...props}
+                  onLogin={(email, password) => handleLogin(email, password)}
+                />
+              )}
+            <Stack.Screen
+              name="SignUpTypeSelection"
+              component={SignUpTypeSelection}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EmailSignUpComponent"
+              component={EmailSignUpComponent}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="NicknameCreationPage"
+              component={NicknameCreationPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SignUpCompletionPage"
+              component={SignUpCompletionPage}
+              options={{ headerShown: false }}
+            />
+          </>
+        )}
         <Stack.Screen
           name="Studyplus"
           component={Studyplus}
@@ -104,17 +174,17 @@ const App = ({ navigation }) => {
           component={HomeScreen}
           options={{ headerShown: false }}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="Calendar"
           component={Calendar}
           options={{ headerShown: false }}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="OfflineStudyScreen"
           component={OfflineStudyScreen}
           options={{ headerShown: false }}
         />
-         <Stack.Screen
+        <Stack.Screen
           name="OnlineStudyScreen"
           component={OnlineStudyScreen}
           options={{ headerShown: false }}
@@ -133,15 +203,11 @@ const styles = StyleSheet.create({
     marginVertical: windowHeight * 0.05,
   },
   title: {
-    top:"7%",
+    top: "5%",
     fontSize: 35,
-    color:"#3D4AE7",
-    fontWeight:"bold"
-   
+    color: "#3D4AE7",
+    fontWeight: "bold"
   },
- 
 });
-
-
 
 export default App;
