@@ -54,7 +54,7 @@ const NewScheduleScreen = () => {
     );
   };
 
-  const handlecompleteButton = () => { // X 버튼을 눌렀을 때
+  const handlecompleteButton = () => { // 체크 버튼을 눌렀을 때
     Alert.alert(
       '작성 완료하기',
       '일정 작성을 완료하시겠습니까?',
@@ -100,7 +100,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inHeader: {
-    flex: 1.5,
+    flex: 1,
+    marginTop: 5,
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -123,7 +124,8 @@ const styles = StyleSheet.create({
   },
   inputArea: {
     flex: 1,
-    marginHorizontal: windowWidth * 0.1,
+    marginTop: 15,
+    marginHorizontal: windowWidth * 0.07,
     marginBottom: windowHeight * 0.05,
     backgroundColor: '#E6E6E6',
     borderRadius: 10,

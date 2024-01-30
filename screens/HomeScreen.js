@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, BackHandler, Alert, } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { ScrollView } from 'react-native-gesture-handler';
 
 const windowWidth = Dimensions.get('window').width;
@@ -9,6 +11,10 @@ const windowHeight = Dimensions.get('window').height;
 
 const HomeScreen = () => {
   const navigation = useNavigation(); // useNavigation 훅 사용
+
+  const handleNewBtn = () => {
+    navigation.navigate('NewScheduleScreen'); // 임시로 MypageScreen으로 이동
+  };
 
   const handleButtonOnline = () => {
     navigation.navigate('MapScreen'); // 임시로 MypageScreen으로 이동
@@ -46,8 +52,11 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>오프라인</Text>
         </TouchableOpacity>
       </View>
-      <View>
-        <Text style={styles.sectionTitle}>To Do List</Text>
+      <View style={styles.todoAreaHeader}>
+        <Text style={styles.todoAreaTitle}>To Do List</Text>
+        <TouchableOpacity onPress={handleNewBtn} style={styles.newBtn}>
+          <Text style={styles.todoAreaPlus}>+ 할 일 추가</Text>
+      </TouchableOpacity>
       </View>
       <View style={styles.toDoArea}>
         <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
@@ -62,6 +71,8 @@ const HomeScreen = () => {
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -113,13 +124,21 @@ const styles = StyleSheet.create({
     fontSize: windowWidth * 0.05,
     fontWeight: '700',
   },
-  sectionTitle: {
+  todoAreaHeader: {
+    flexDirection: 'row', 
+    justifyContent: 'space-between',
+    marginHorizontal: windowWidth * 0.06,
+    marginTop: windowHeight * 0.01,
+    marginBottom: windowHeight * 0.008,
+  },
+  todoAreaTitle: {
     fontSize: windowWidth * 0.05,
     color: '#3D4AE7',
     fontWeight: '700',
-    marginLeft: windowWidth * 0.06,
-    marginTop: windowHeight * 0.01,
-    marginBottom: windowHeight * 0.008,
+  },
+  todoAreaPlus: {
+    fontSize: 15, 
+    fontWeight: '600',
   },
   toDoArea: {
     flex: 1,
@@ -146,6 +165,59 @@ const styles = StyleSheet.create({
   },
   toDoDetail: {
     fontSize: windowWidth * 0.031,
+  },
+  //------------
+  inHeader: {
+    flex: 1,
+    marginTop: 5,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    paddingHorizontal: windowWidth * 0.11,
+  },
+  completeBtn: {
+    marginLeft: windowWidth * 0.15,
+    paddingHorizontal: windowWidth * 0.02,
+    paddingVertical: windowHeight * 0.01,
+    backgroundColor: '#E0F8E0',
+    borderRadius: 10,
+    elevation: 10,
+  },
+  backBtn: {
+    paddingHorizontal: windowWidth * 0.02,
+    paddingVertical: windowHeight * 0.01,
+    backgroundColor: '#F8E0E0',
+    borderRadius: 10,
+    elevation: 10,
+  },
+  inputArea: {
+    flex: 1,
+    marginTop: 15,
+    marginHorizontal: windowWidth * 0.07,
+    marginBottom: windowHeight * 0.05,
+    backgroundColor: '#E6E6E6',
+    borderRadius: 10,
+    elevation: 10,
+  },
+  inputTitle: {
+    flex: 1,
+    backgroundColor: 'white',
+    marginTop: windowHeight * 0.03,
+    marginHorizontal: windowWidth * 0.05,
+    paddingHorizontal: windowWidth * 0.05,
+    borderRadius: 10,
+    fontSize: windowHeight * 0.025,
+    fontWeight: '600',
+  },
+  inputDetail: {
+    flex: 5,
+    backgroundColor: 'white',
+    marginVertical: windowHeight * 0.03,
+    marginHorizontal: windowWidth * 0.05,
+    paddingHorizontal: windowWidth * 0.05,
+    borderRadius: 10,
+    fontSize: windowHeight * 0.02,
+    fontWeight: '500',
   },
 });
 

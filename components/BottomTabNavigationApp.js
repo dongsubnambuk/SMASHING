@@ -58,6 +58,7 @@ function BottomTabNavigationApp() {
           ),
         }}
       />
+      {/*
       <Tab.Screen
         name="Calendar"
         component={CalendarScreen}
@@ -68,6 +69,7 @@ function BottomTabNavigationApp() {
           ),
         }}
       />
+      */}
       <Tab.Screen
         name="Message"
         component={MypageScreen}
