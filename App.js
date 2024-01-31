@@ -1,5 +1,5 @@
 // App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -12,16 +12,11 @@ import { Entypo } from '@expo/vector-icons';
 
 import MypageScreen from './screens/MypageScreen';
 import MapScreen from './screens/MapScreen';
-import CalendarScreen from './screens/CalendarScreen';
-import NewScheduleScreen from './screens/NewScheduleScreen';
+//import CalendarScreen from './screens/CalendarScreen';
+//import NewScheduleScreen from './screens/NewScheduleScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-
-const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app);
-
-export { firestore };
 
 const Stack = createStackNavigator();
 
@@ -47,7 +42,7 @@ const App = ({ navigation }) => {
           </TouchableOpacity>
           */}
         </SafeAreaView>
-        <Stack.Navigator options={{ headerShown: false }} // 기본 헤더 숨기기
+        <Stack.Navigator //options={{ headerShown: false }} // 기본 헤더 숨기기
           screenOptions={{
           headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
           }} initialRouteName="BottomTabNavigationApp">
@@ -63,14 +58,18 @@ const App = ({ navigation }) => {
             name="MapScreen"
             component={MapScreen}
           />
+          {/*
           <Stack.Screen
             name="NewScheduleScreen"
             component={NewScheduleScreen}
           />
+          */}
+          {/*
           <Stack.Screen
             name="CalendarScreen"
             component={CalendarScreen}
           />
+          */}
         </Stack.Navigator>
       </NavigationContainer>
   );

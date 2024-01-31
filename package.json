@@ -9,6 +9,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-firebase/app": "^18.8.0",
+    "@react-native-firebase/firestore": "^18.8.0",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
@@ -16,12 +18,12 @@
     "expo": "~50.0.2",
     "expo-location": "^16.5.2",
     "expo-status-bar": "~1.11.1",
-    "firebase": "^10.7.2",
     "react": "18.2.0",
     "react-native": "0.73.2",
     "react-native-calendars": "^1.1303.0",
     "react-native-elements": "^3.4.3",
-    "react-native-maps": "1.8.0"
+    "react-native-maps": "1.8.0",
+    "undefined": "firebase/@lastest"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

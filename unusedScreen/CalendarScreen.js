@@ -1,4 +1,5 @@
 //CalendarScreen.js
+/*
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -166,3 +167,4 @@ const styles = StyleSheet.create({
     marginHorizontal: windowWidth * -0.035, // 아이콘 배경이 커서 조절
   },
 });
+*/

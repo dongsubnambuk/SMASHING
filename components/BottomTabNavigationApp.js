@@ -8,7 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import StudyScreen from '../screens/StudyScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import MypageScreen from '../screens/MypageScreen';
-import CalendarScreen from '../screens/CalendarScreen';
+//import CalendarScreen from '../screens/CalendarScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
