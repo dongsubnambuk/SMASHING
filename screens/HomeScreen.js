@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, BackHandler, Alert, } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { collection, getFirestore } from 'firebase/compat/firestore';
+import { Ionicons, FontAwesome6, FontAwesome, AntDesign } from '@expo/vector-icons';
+
 import { firebaseConfig } from '../firebaseConfig';
 import firebase, { initializeApp } from 'firebase/compat/app';
 
@@ -19,21 +17,42 @@ firebase.initializeApp(firebaseConfig);
 // Firestore 인스턴스 가져오기
 const firestore = firebase.firestore();
 
-const getUsers = async () => {
-  try {
-    const usersCollection = await firestore.collection('todolist').get();
-    const usersData = usersCollection.docs.map(doc => doc.data());
-    console.log(usersData);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-  }
-};
+// 파이어베이스 데이터 불러오기
+// const getUsers = async () => {
+//   try {
+//     const usersCollection = await firestore.collection('todolist').get();
+//     const usersData = usersCollection.docs.map(doc => doc.data());
+//     console.log(usersData);
+//   } catch (error) {
+//     console.error('Error fetching users:', error);
+//   }
+// };
 
 const Stack = createStackNavigator();
 
 const MainScreen = ({navigation}) => {
-  getUsers();
+  const getUsers = async () => {
+    try {
+      const usersCollection = await firestore.collection('todolist').orderBy('createdAt', 'asc').get();
+      // createdAt 필드를 기준으로 정렬 -> 오름차순(desc), 내림차순(asc)
+      const usersData = usersCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTodos(usersData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getUsers(); // MainScreen이 focus를 얻을 때마다 데이터를 다시 불러옴
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const [todos, setTodos] = useState({});
 
@@ -47,6 +66,20 @@ const MainScreen = ({navigation}) => {
 
   const handleButtonOffline = () => {
     // 버튼이 눌렸을 때 수행할 동작 추가
+  };
+
+  const handleTodoDelete = () => {
+    Alert.alert("삭제", "할 일 목록을 삭제하시겠습니까?", [
+      {
+        text: "아니오",
+        onPress: () => null,
+        style: "cancel"
+      },
+      {
+        text: "예",
+        onPress: () => null,
+      }
+    ]);
   };
 
   return (
@@ -97,8 +130,13 @@ const MainScreen = ({navigation}) => {
         <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
         {Object.keys(todos).map((key) => (
           <View key={key} style={styles.toDoList}>
-            <Text style={styles.toDoTitle}>{todos[key].textTitle}</Text>
-            <Text style={styles.toDoDetail}>{todos[key].textDetail}</Text>
+            <View>
+              <Text style={styles.toDoTitle}>{todos[key].textTitle}</Text>
+              <Text style={styles.toDoDetail}>{todos[key].textDetail}</Text>
+            </View>
+            <TouchableOpacity onPress={handleTodoDelete}>
+              <FontAwesome name="trash-o" size={35} color="black" />
+            </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
@@ -114,21 +152,47 @@ const NewTodoScreen = ({navigation}) => {
 
   const onChangeTextTitle = (payload) => setTextTitle(payload);
   const onChangeTextDetail = (payload) => setTextDetail(payload);
-  const addTodo = () => {
-    if(textTitle === "" || textDetail === ""){
+
+  // const addTodo = () => {
+  //   if(textTitle === "" || textDetail === ""){
+  //     alert("제목과 세부사항을 모두 작성해주세요!");
+  //     return;
+  //   }
+  //   const newTodos = {
+  //     ...todos, 
+  //     [Date.now()]: { textTitle, textDetail },
+  //   };
+  //   setTodos(newTodos);
+  //   alert("저장되었습니다!");
+  //   //setTextTitle("");
+  //   navigation.goBack();
+  // };
+  // console.log(todos);
+
+  const addTodo = async () => {
+    if (textTitle === "" || textDetail === "") {
       alert("제목과 세부사항을 모두 작성해주세요!");
       return;
     }
-    const newTodos = {
-      ...todos, 
-      [Date.now()]: { textTitle, textDetail },
-    };
-    setTodos(newTodos);
-    alert("저장되었습니다!");
-    //setTextTitle("");
-    navigation.goBack();
+
+    try {
+      const todoRef = firestore.collection('todolist');
+      const newTodo = {
+        textTitle,
+        textDetail,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+
+      await todoRef.add(newTodo);
+      alert("저장되었습니다!");
+      //navigation.goBack();
+      // navigation.goBack() 대신 navigation.navigate로 이동하면서 데이터 전달
+      navigation.navigate('MainScreen', { refresh: true });
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
   };
-  console.log(todos);
+
   useEffect(() => { // 스마트폰의 뒤로가기를 눌렀을 때(작성 중 내용 증발 방지)
     const backAction = () => {
       Alert.alert("작성 그만두기", "일정 작성을 취소하고, 정말로 뒤로가시겠습니까?", [
@@ -317,6 +381,8 @@ const styles = StyleSheet.create({
     marginBottom: windowHeight * 0.015,
     borderRadius: 10,
     backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   toDoTitle: {
     fontSize: windowWidth * 0.04,

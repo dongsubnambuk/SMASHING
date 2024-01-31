@@ -19,3 +19,10 @@ npm install date-fns
 npm install react-native-maps
 
 npm install expo-location
+
+
+------------------------------------------------
+
+파이어베이스 파일경로 주의(firebase/compat/~)
+
+파이어베이스 오류 고쳐지지 않으면 packge-lock.json과 node_modules 삭제하고 packge.json에 "firebase": "^10.7.1" 줄 삭제하고 npm install firebase@10.7.1로 새로 다운하기
