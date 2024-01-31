@@ -25,6 +25,7 @@ import SignUpCompletionPage from './components/SignUpCompletionPage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { initializeAuth, getReactNativePersistence, signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { useFonts } from 'expo-font';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -38,14 +39,24 @@ export { firestore };
 const Stack = createStackNavigator();
 
 const App = () => {
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showHeader, setShowHeader] = useState(false);
+  const [fontsLoaded] = useFonts({
+    Ultra: require('./assets/fonts/Ultra.ttf'),
+    // 다른 폰트가 있다면 여기에 추가하세요.
+  });
 
+ 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setIsLoggedIn(true);
+        setShowHeader(true);
+
       } else {
         setIsLoggedIn(false);
+        setShowHeader(false);
       }
     });
 
@@ -67,6 +78,11 @@ const App = () => {
     })();
   }, []);
 
+  if (!fontsLoaded) {
+    return null; // 폰트 로딩 중이면 렌더링하지 않음
+  }
+
+
   const handleLogin = async (email, password) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -87,9 +103,11 @@ const App = () => {
           background: 'white',
         },
       }}>
-      <SafeAreaView style={styles.header}>
-        <Text style={styles.title}>SMASHING</Text>
-      </SafeAreaView>
+     {showHeader && (
+        <SafeAreaView style={styles.header}>
+          <Text style={styles.title}>SMASHING</Text>
+        </SafeAreaView>
+      )}
 
       <Stack.Navigator initialRouteName={isLoggedIn ? "BottomTabNavigationApp" : "SignUpFirstScreen"}>
         {isLoggedIn ? (
@@ -203,6 +221,7 @@ const styles = StyleSheet.create({
     marginVertical: windowHeight * 0.05,
   },
   title: {
+    fontFamily: 'Ultra',
     top: "5%",
     fontSize: 35,
     color: "#3D4AE7",

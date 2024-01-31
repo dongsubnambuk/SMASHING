@@ -2,13 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet, ScrollView, Image, Modal, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  addDoc, serverTimestamp
+} from 'firebase/firestore';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
-import * as Location from 'expo-location';
+import { Alert } from 'react-native';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
+const auth = getAuth();
 
 const OnlineStudyScreen = ({ navigation }) => {
   const [onlineStudyList, setOnlineStudyList] = useState([]);
@@ -16,7 +26,8 @@ const OnlineStudyScreen = ({ navigation }) => {
   const [isLocationModalVisible, setLocationModalVisible] = useState(false);
   const [isLocationGranted, setLocationGranted] = useState(false);
   const [selectedStudy, setSelectedStudy] = useState(null);
-
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isStudyModalVisible, setStudyModalVisible] = useState(false);
   useEffect(() => {
     const getOnlineStudyList = async () => {
       try {
@@ -38,12 +49,65 @@ const OnlineStudyScreen = ({ navigation }) => {
 
   const openModal = (study) => {
     setSelectedStudy(study);
-    setLocationModalVisible(true);
+    setStudyModalVisible(true);
   };
 
   const closeModal = () => {
     setSelectedStudy(null);
-    setLocationModalVisible(false);
+    setStudyModalVisible(false);
+  };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    // 컴포넌트가 언마운트될 때 감지 중지
+    return () => unsubscribe();
+  }, []);
+
+
+
+  const applyForStudy = async () => {
+    try {
+   
+  
+      if (!selectedStudy || !selectedStudy.studygroupName) {
+        console.error('선택된 스터디가 유효하지 않습니다.');
+        return;
+      }
+  
+      // 중복 신청 여부 확인
+      const isAlreadyApplied = onlineStudyList.some(study => study.studygroupName === selectedStudy.studygroupName);
+  
+      if (isAlreadyApplied) {
+        // 중복 신청 알림
+        Alert.alert('중복 신청', '이미 신청한 스터디입니다.');
+        return;
+      }
+  
+      // Firestore의 "onlineStudies" 컬렉션에 새로운 문서를 추가합니다.
+      const onlineStudiesCollection = collection(firestore, 'onlineStudies');
+      const newDocRef = await addDoc(onlineStudiesCollection, {
+        ...selectedStudy,
+        userId: currentUser ? currentUser.uid : null,
+        appliedAt: serverTimestamp(),
+      });
+  
+      // 성공 팝업
+      Alert.alert('스터디 신청 성공', '스터디 신청이 성공적으로 완료되었습니다.');
+  
+  
+      // 스터디 모달을 닫습니다.
+      setStudyModalVisible(false);
+    } catch (error) {
+      console.error('스터디 신청 오류:', error);
+      
+    }
   };
 
 
@@ -87,7 +151,7 @@ const OnlineStudyScreen = ({ navigation }) => {
 <Modal
         animationType="slide"
         transparent={true}
-        visible={isLocationModalVisible}
+        visible={isStudyModalVisible}
         onRequestClose={closeModal}
       >
         <View style={styles.centeredView}>
@@ -113,7 +177,8 @@ const OnlineStudyScreen = ({ navigation }) => {
               </TouchableOpacity>
 
               {/* 신청 버튼 - 여기에 스터디에 지원하는 논리를 추가할 수 있습니다 */}
-              <TouchableOpacity style={styles.applyButton} onPress={() => {/* 여기에 지원하는 논리를 추가하세요 */}}>
+              <TouchableOpacity style={styles.applyButton} 
+              onPress={applyForStudy} >
                 <Text style={styles.applyButtonText}>신청하기</Text>
               </TouchableOpacity>
             </View>

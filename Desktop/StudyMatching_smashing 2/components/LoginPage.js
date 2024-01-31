@@ -65,11 +65,17 @@ const LoginPage = () => {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={30} color="#3D4AE7" />
+      <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={35} color="#3D4AE7" />
         </TouchableOpacity>
-        <View style={styles.smashingHeader}></View>
+       <Text style={styles.smasing}>SMASHING</Text>
+      </View>
+     
+        
+      
         <Text style={styles.login}>로그인</Text>
+       
         <Text style={styles.account}>계정</Text>
         <View style={styles.inputContainer}>
           <TextInput
@@ -91,6 +97,7 @@ const LoginPage = () => {
         <TouchableOpacity style={styles.primary} onPress={handleLogin}>
           <Text style={styles.loginbtn}>로그인</Text>
         </TouchableOpacity>
+
         <View style={styles.linkContainer}>
           <TouchableOpacity style={styles.link} onPress={navigateToFindAccount}>
             <Text style={styles.linkText}>계정 찾기</Text>
@@ -100,10 +107,17 @@ const LoginPage = () => {
             <Text style={styles.linkText}>비밀번호 찾기</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.or}>또는</Text>
+
+        <View style={styles.orContainer}>
+          <View style={styles.orLine} />
+          <Text style={styles.orText}>또는</Text>
+          <View style={styles.orLine} />
+        </View>
+
         <TouchableOpacity style={styles.secondary}>
           <Text style={styles.googlelongin}>구글로 로그인하기</Text>
         </TouchableOpacity>
+        
       </View>
     </TouchableWithoutFeedback>
   );
@@ -117,21 +131,29 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: '#ffffff',
   },
-  smashingHeader: {
-    // top: '3%',
-    backgroundColor: '#ffffff',
-    borderBottomColor: '#ccc',
-    padding: 10,
-    width: '100%',
+  header: {
+    top:"6%",
+    height:50,
+    marginLeft:"3%",
+     alignSelf: 'flex-start', // 이 부분을 추가하여 상단에 배치
+   },
+  smasing: {
+  
+    fontSize: 50,
+    color: '#3D4AE7',
+    fontFamily: 'Ultra',
+    lineHeight: 54,
+     alignItems: 'center',
+     fontWeight: 'bold',
   },
-  smashingText: {
-    color: '#3d4ae7',
-    fontSize: 35,
-    fontWeight: 'bold',
+  inner:{
+    top:"10%"
   },
+  
   login: {
+  
     fontWeight: 'bold',
-    // top: '5%',
+    top: '10%',
     marginLeft: 10,
     textAlign: 'left',
     color: '#000000',
@@ -140,7 +162,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   account: {
-    top: '13%',
+    top: '17%',
     marginLeft: 10,
     textAlign: 'left',
     color: '#000000',
@@ -149,16 +171,26 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     fontWeight: 'bold',
   },
-  or: {
-    top: '13%',
-    marginLeft: 10,
-    textAlign: 'left',
-    color: '#000000',
-    fontWeight: '800',
+  orContainer: {
+    top:"31%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    paddingHorizontal: 20, // 양 옆 여백 조절
+  },
+  
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#3d4ae7',
+    marginHorizontal: 10, // 선의 양 옆 여백 조절
+  },
+  orText: {
+    color: 'black',
     fontSize: 18,
   },
   inputContainer: {
-    top: '26%',
+    top: '35%',
     width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
@@ -168,7 +200,7 @@ const styles = StyleSheet.create({
   },
   primary: {
     height: 50,
-    top: '11%',
+    top: '16%',
     width: '95%',
     marginVertical: 20,
     backgroundColor: '#3d4ae7',
@@ -185,18 +217,23 @@ const styles = StyleSheet.create({
   },
   linkContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    top: '25%',
+   marginLeft:"5%",
+    top: '32%',
     marginVertical: 10,
+   
   },
   linkText: {
-    color: '#3d4ae7',
+   
+    paddingHorizontal: 20,
+    justifyContent: 'space-between', // 또는 'space-evenly'
+    // marginHorizontal: 20, 
+    color: 'black',
     fontSize: 18,
   },
   secondary: {
     width: '95%',
     height: 50,
-    top: '16%',
+    top: '15%',
     marginVertical: 10,
     backgroundColor: '#ffffff',
     borderColor: '#3d4ae7',

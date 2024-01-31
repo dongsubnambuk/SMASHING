@@ -64,20 +64,20 @@ const EmailSignUpComponent = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-       <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={30} color="#3D4AE7" />
+       <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={35} color="#3D4AE7" />
         </TouchableOpacity>
+       <Text style={styles.smasing}>SMASHING</Text>
+      </View>
+     
       {/* 헤더 */}
-      <Text style={styles.header}>회원가입</Text>
+      <Text style={styles.join}>회원가입</Text>
 
       {/* 계정 */}
       <Text style={styles.title}>계정</Text>
 
-      {/* Group 29 */}
-      <View style={styles.group29} />
+     
 
       {/* 아이디 입력 */}
       <View style={styles.inputContainer}>
@@ -141,17 +141,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
+    top:"6%",
+    height:50,
+    marginLeft:"3%",
+     // flexDirection: 'row',
+     alignSelf: 'flex-start', // 이 부분을 추가하여 상단에 배치
+   },
+  smasing: {
+    // top:"5%",
+    fontSize: 50,
+    color: '#3D4AE7',
+    fontFamily: 'Ultra',
+    lineHeight: 54,
+     alignItems: 'center',
+     fontWeight: 'bold',
+  },
+  join: {
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: '5%',
-    marginTop: '5%',
+   top:"12%"
   },
   title: {
     position: 'absolute',
     width: 34,
     height: 22,
     left: 20,
-    top: '14%',
+    top: '28%',
     fontWeight: '800',
     fontSize: 18,
     lineHeight: 22,
@@ -168,7 +184,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginLeft: '5%',
-    top: '25%',
+    top: '35%',
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,

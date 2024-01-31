@@ -29,17 +29,27 @@ const StudyList = () => {
 
         const fetchMyStudies = async () => {
           try {
-            const querySnapshot = await getDocs(collection(firestore, 'offlineStudies'));
-
-            const studiesData = [];
-            querySnapshot.forEach((doc) => {
+            const offlineQuerySnapshot = await getDocs(collection(firestore, 'offlineStudies'));
+            const offlineStudiesData = [];
+            offlineQuerySnapshot.forEach((doc) => {
               const data = doc.data();
               if (data.userId === user.uid) {
-                studiesData.push({ id: doc.id, ...data });
+                offlineStudiesData.push({ id: doc.id, ...data });
               }
             });
-
-            setMyStudies(studiesData);
+        
+            // Online Studies 가져오기
+            const onlineQuerySnapshot = await getDocs(collection(firestore, 'onlineStudies'));
+            const onlineStudiesData = [];
+            onlineQuerySnapshot.forEach((doc) => {
+              const data = doc.data();
+              if (data.userId === user.uid) {
+                onlineStudiesData.push({ id: doc.id, ...data });
+              }
+            });
+        
+            // Offline Studies와 Online Studies를 합쳐서 setMyStudies 호출
+            setMyStudies([...offlineStudiesData, ...onlineStudiesData]);
           } catch (error) {
             console.error('Error fetching my studies:', error);
           } finally {

@@ -25,6 +25,7 @@ import { Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import Slider from '@react-native-community/slider';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Ionicons } from '@expo/vector-icons';
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -67,6 +68,8 @@ const Studyplus = () => {
     setSelectedMapLocation(clickedLocation);
     setMapModalVisible(true); // 모달을 열도록 수정
   };
+
+
   const showConfirmationDialog = () => {
     Alert.alert(
       "위치 선택 확인",
@@ -318,8 +321,8 @@ const Studyplus = () => {
       <View style={styles.container}>
         <View style={styles.textContainer}>
             <Text style={styles.mystudygroup}>모임 만들기</Text>
-          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-              <Text style={styles.backButtonText}>뒤로가기</Text>
+            <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+              <Ionicons name="close" size={34} color="#3D4AE7" />
             </TouchableOpacity>
         </View>
         <Text style={styles.mystudygroup_under}>대충 있어 보이는 말</Text>
@@ -556,7 +559,7 @@ const Studyplus = () => {
           style={styles.thumbnailButton}
           onPress={openImagePicker}
         >
-          <Text style={styles.thumbnailButtonText}>스터디 섬네일</Text>
+          <Text style={styles.thumbnailButtonText}>스터디 썸네일</Text>
         </TouchableOpacity>
         {thumbnail && (
           <Image source={{ uri: thumbnail }} style={styles.thumbnailPreview} />
