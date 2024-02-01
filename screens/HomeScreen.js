@@ -12,28 +12,21 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 // Firebase 초기화
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 // Firestore 인스턴스 가져오기
 const firestore = firebase.firestore();
 
-// 파이어베이스 데이터 불러오기
-// const getUsers = async () => {
-//   try {
-//     const usersCollection = await firestore.collection('todolist').get();
-//     const usersData = usersCollection.docs.map(doc => doc.data());
-//     console.log(usersData);
-//   } catch (error) {
-//     console.error('Error fetching users:', error);
-//   }
-// };
+const userUID = 'IT0OPavkJshdCO6JNhUw';
 
 const Stack = createStackNavigator();
 
 const MainScreen = ({navigation}) => {
   const getUsers = async () => {
     try {
-      const usersCollection = await firestore.collection('todolist').orderBy('createdAt', 'asc').get();
+      const usersCollection = await firestore.collection('/userData/' + userUID + '/todoList').orderBy('createdAt', 'asc').get();
       // createdAt 필드를 기준으로 정렬 -> 오름차순(desc), 내림차순(asc)
       const usersData = usersCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setTodos(usersData);
@@ -41,6 +34,19 @@ const MainScreen = ({navigation}) => {
       console.error('Error fetching users:', error);
     }
   };
+
+
+  const deleteTodo = async (todoId) => {
+    try {
+      const todoRef = firestore.collection('/userData/' + userUID + '/todoList');
+      await todoRef.doc(todoId).delete();
+      alert("삭제되었습니다!");
+      getUsers();
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+    }
+  };
+  
 
   useEffect(() => {
     getUsers();
@@ -68,7 +74,7 @@ const MainScreen = ({navigation}) => {
     // 버튼이 눌렸을 때 수행할 동작 추가
   };
 
-  const handleTodoDelete = () => {
+  const handleTodoDelete = (todoId) => {
     Alert.alert("삭제", "할 일 목록을 삭제하시겠습니까?", [
       {
         text: "아니오",
@@ -77,7 +83,7 @@ const MainScreen = ({navigation}) => {
       },
       {
         text: "예",
-        onPress: () => null,
+        onPress: () => deleteTodo(todoId),
       }
     ]);
   };
@@ -92,6 +98,7 @@ const MainScreen = ({navigation}) => {
           대충 있어보이는 말
         </Text>
       </View>
+      {/*
       <View style={styles.searchSection}>
         <Ionicons style={styles.searchIcon} resizeMode="contain" name="search" size={windowHeight * 0.04} color="#3D4AE7" />
         <TextInput
@@ -99,6 +106,7 @@ const MainScreen = ({navigation}) => {
           style={styles.input}
         />
       </View>
+      */}
       <View>
         <Text style={styles.onOffTitle}>온라인 / 오프라인 스터디 리스트</Text>
       </View>
@@ -117,16 +125,6 @@ const MainScreen = ({navigation}) => {
       </TouchableOpacity>
       </View>
       <View style={styles.toDoArea}>
-        {/*
-        <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
-          {[...Array(10)].map((_, index) => (
-            <View key={index} style={styles.toDoList}>
-              <Text style={styles.toDoTitle}>목표</Text>
-              <Text style={styles.toDoDetail}>세부 목표</Text>
-            </View>
-          ))}
-        </ScrollView>
-        */}
         <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
         {Object.keys(todos).map((key) => (
           <View key={key} style={styles.toDoList}>
@@ -134,7 +132,7 @@ const MainScreen = ({navigation}) => {
               <Text style={styles.toDoTitle}>{todos[key].textTitle}</Text>
               <Text style={styles.toDoDetail}>{todos[key].textDetail}</Text>
             </View>
-            <TouchableOpacity onPress={handleTodoDelete}>
+            <TouchableOpacity onPress={() => handleTodoDelete(todos[key].id)}>
               <FontAwesome name="trash-o" size={35} color="black" />
             </TouchableOpacity>
           </View>
@@ -153,22 +151,6 @@ const NewTodoScreen = ({navigation}) => {
   const onChangeTextTitle = (payload) => setTextTitle(payload);
   const onChangeTextDetail = (payload) => setTextDetail(payload);
 
-  // const addTodo = () => {
-  //   if(textTitle === "" || textDetail === ""){
-  //     alert("제목과 세부사항을 모두 작성해주세요!");
-  //     return;
-  //   }
-  //   const newTodos = {
-  //     ...todos, 
-  //     [Date.now()]: { textTitle, textDetail },
-  //   };
-  //   setTodos(newTodos);
-  //   alert("저장되었습니다!");
-  //   //setTextTitle("");
-  //   navigation.goBack();
-  // };
-  // console.log(todos);
-
   const addTodo = async () => {
     if (textTitle === "" || textDetail === "") {
       alert("제목과 세부사항을 모두 작성해주세요!");
@@ -176,7 +158,7 @@ const NewTodoScreen = ({navigation}) => {
     }
 
     try {
-      const todoRef = firestore.collection('todolist');
+      const todoRef = firestore.collection('/userData/' + userUID + '/todoList');
       const newTodo = {
         textTitle,
         textDetail,
@@ -185,7 +167,6 @@ const NewTodoScreen = ({navigation}) => {
 
       await todoRef.add(newTodo);
       alert("저장되었습니다!");
-      //navigation.goBack();
       // navigation.goBack() 대신 navigation.navigate로 이동하면서 데이터 전달
       navigation.navigate('MainScreen', { refresh: true });
     } catch (error) {
@@ -302,9 +283,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subHeader: {
-    paddingVertical: windowHeight * 0.005,
+    paddingBottom: windowHeight * 0.02,
     paddingHorizontal: windowWidth * 0.05,
   },
+  /*
   searchSection: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -317,6 +299,7 @@ const styles = StyleSheet.create({
   searchIcon: {
     padding: windowHeight * 0.005,
   },
+  */
   input: {
     flex: 1,
     borderRadius: 10,
@@ -393,7 +376,7 @@ const styles = StyleSheet.create({
   },
   //------------아래는 NewTodoScreen의 스타일
   inHeader: {
-    flex: 1,
+    flex: 1.3,
     marginTop: 5,
     alignItems: 'center',
     justifyContent: 'space-between',

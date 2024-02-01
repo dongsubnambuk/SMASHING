@@ -4,13 +4,14 @@ import firebase, { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBYdh8HhKGE8K2_Z-iPfSED2Jf8GbcbS0Q",
-  authDomain: "prote-7c8cd.firebaseapp.com",
-  projectId: "prote-7c8cd",
-  storageBucket: "prote-7c8cd.appspot.com",
-  messagingSenderId: "23313563315",
-  appId: "1:23313563315:web:db7dd70efa4c856afa3ac6",
-  measurementId: "G-JHQK574W8B"
+  apiKey: "AIzaSyDBAwwjuO4Z3h7vwUGIz-LIPwbQAFQPjS8",
+  authDomain: "final-smashing.firebaseapp.com",
+  databaseURL: "https://final-smashing-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "final-smashing",
+  storageBucket: "final-smashing.appspot.com",
+  messagingSenderId: "527748083905",
+  appId: "1:527748083905:web:e9a7206892bf4872b3e440",
+  measurementId: "G-ZGZNXNYJLB"
 };
 
 // Initialize Firebase

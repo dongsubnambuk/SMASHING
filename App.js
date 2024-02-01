@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginHorizontal: windowWidth * 0.05,
-    marginVertical: windowHeight * 0.02,
+    marginVertical: windowHeight * 0.01,
   },
   headerImage: {
     width: windowWidth * 0.51,
