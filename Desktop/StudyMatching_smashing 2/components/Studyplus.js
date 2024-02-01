@@ -26,6 +26,7 @@ import { Calendar } from 'react-native-calendars';
 import Slider from '@react-native-community/slider';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Ionicons } from '@expo/vector-icons';
+import { format } from 'date-fns';
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -196,6 +197,9 @@ const Studyplus = () => {
 
   const onCreateStudyPress = async () => {
     try {
+      // 현재 타임스탬프를 사용하여 보기 쉽게 스터디 ID 생성
+      const studyId = format(new Date(), 'yyyyMMddHHmmssSSS');
+      
       const timestamp = new Date();
       const buildingName = await getBuildingName(selectedMapLocation);
   
@@ -217,7 +221,11 @@ const Studyplus = () => {
   
       // studyLocations에서 얻은 위치 정보의 ID를 활용하여 studies 컬렉션에 저장
       const studyLocationId = studyLocationRef.id;
-      const docRef = await addDoc(collection(firestore, 'studies'), {
+  
+      // 보기 쉽게 생성된 스터디 ID를 사용하여 studies 컬렉션에 스터디 추가
+      const studyRef = collection(firestore, 'studies');
+      const newStudyRef = await addDoc(studyRef, {
+        studyId, // 사용자가 보기 쉽게 만든 스터디 ID
         studygroupName,
         selectedCategory,
         studyPeriod,
@@ -229,11 +237,11 @@ const Studyplus = () => {
         },
         thumbnail: thumbnailURL,
         isOnline,
-        createdBy: currentUser ? currentUser.uid : null, // 현재 사용자의 UID 저장
+        createdBy: currentUser ? currentUser.uid : null,
         createdAt: timestamp,
       });
   
-      alert(`스터디 생성이 완료되었습니다.`);
+      alert(`스터디 생성이 완료되었습니다. 스터디 ID: ${studyId}`);
       navigation.goBack();
     } catch (error) {
       console.error('스터디 생성 오류:', error);

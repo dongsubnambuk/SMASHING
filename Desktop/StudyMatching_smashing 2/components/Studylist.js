@@ -7,7 +7,7 @@ import {
   StyleSheet,
   RefreshControl,
 } from 'react-native';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs,onSnapshot } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
@@ -15,61 +15,96 @@ import { initializeApp } from 'firebase/app';
 const StudyList = () => {
   const [myStudies, setMyStudies] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(true);  // 최초 진입 시에만 자동 새로고침
   const [studyType, setStudyType] = useState('all');
+
 
   useEffect(() => {
     const app = initializeApp(firebaseConfig);
     const firestore = getFirestore(app);
     const auth = getAuth(app);
-
+  
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setCurrentUser(user);
-
+  
         const fetchMyStudies = async () => {
           try {
-            const offlineQuerySnapshot = await getDocs(collection(firestore, 'offlineStudies'));
-            const offlineStudiesData = [];
-            offlineQuerySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.userId === user.uid) {
-                offlineStudiesData.push({ id: doc.id, ...data });
-              }
-            });
+            // 오프라인 스터디 가져오기
+            const offlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'));
+            const offlineStudiesData = offlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-            // Online Studies 가져오기
-            const onlineQuerySnapshot = await getDocs(collection(firestore, 'onlineStudies'));
-            const onlineStudiesData = [];
-            onlineQuerySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.userId === user.uid) {
-                onlineStudiesData.push({ id: doc.id, ...data });
-              }
-            });
+            // 온라인 스터디 가져오기
+            const onlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'));
+            const onlineStudiesData = onlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-            // Offline Studies와 Online Studies를 합쳐서 setMyStudies 호출
+            // 오프라인 스터디와 온라인 스터디를 합쳐서 setMyStudies 호출
             setMyStudies([...offlineStudiesData, ...onlineStudiesData]);
+        
+            // Firestore 스터디 컬렉션의 변화 감지
+            const unsubscribeOfflineStudies = onSnapshot(
+              collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'),
+              (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                  if (change.type === 'removed') {
+                    // 삭제된 오프라인 스터디를 리스트에서 제거
+                    setMyStudies((prevStudies) => prevStudies.filter((study) => study.id !== change.doc.id));
+                  } else if (change.type === 'added') {
+                    // 새로 생성된 오프라인 스터디를 리스트에 추가
+                    setMyStudies((prevStudies) => [...prevStudies, { id: change.doc.id, ...change.doc.data() }]);
+                  }
+                });
+              }
+            );
+            // 온라인 스터디에 대한 변경도 감지
+          const unsubscribeOnlineStudies = onSnapshot(
+            collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'),
+            (snapshot) => {
+              snapshot.docChanges().forEach((change) => {
+                if (change.type === 'removed') {
+                  // 삭제된 온라인 스터디를 리스트에서 제거
+                  setMyStudies((prevStudies) => prevStudies.filter((study) => study.id !== change.doc.id));
+                } else if (change.type === 'added') {
+                  // 새로 생성된 온라인 스터디를 리스트에 추가
+                  setMyStudies((prevStudies) => [...prevStudies, { id: change.doc.id, ...change.doc.data() }]);
+                }
+              });
+            }
+           );
+            return () => {
+              unsubscribeOfflineStudies();
+              unsubscribeOnlineStudies();
+            };
           } catch (error) {
-            console.error('Error fetching my studies:', error);
-          } finally {
-            setIsRefreshing(false);
+            console.error('스터디 가져오기 오류:', error);
+            // 오류 처리
           }
         };
-
+        
+  
         fetchMyStudies();
       } else {
         setCurrentUser(null);
         setMyStudies([]);
       }
-    }, [isRefreshing]);
-
-    return () => unsubscribe();
+    }, []);
+  
+    return () => {
+      // Cleanup 함수에서 감지 리스너 해제
+      unsubscribe();
+    };
   }, []);
 
   const onRefresh = () => {
-    setIsRefreshing(true);
+    // 사용자가 직접 새로고침을 시도했을 때에만 함수 실행
+    if (currentUser) {
+      setIsRefreshing(true);
+      setTimeout(() => {
+        setIsRefreshing(false);  // 사용자가 직접 새로고침할 때 2초 후에 새로고침 완료
+      }, 2000);
+    }
   };
+  
 
   const renderMyStudyItem = ({ item }) => {
     if (studyType === 'all' || (studyType === 'online' && item.isOnline) || (studyType === 'offline' && !item.isOnline)) {

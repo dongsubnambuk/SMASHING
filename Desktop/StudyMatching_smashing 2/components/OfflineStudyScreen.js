@@ -1,4 +1,3 @@
-// OnlineStudyScreen.js
 import React, { useEffect, useState } from 'react';
 import {
   TouchableOpacity,
@@ -16,7 +15,7 @@ import {
   getDocs,
   query,
   where,
-  addDoc, serverTimestamp
+  addDoc, serverTimestamp,doc
 } from 'firebase/firestore';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
@@ -115,42 +114,60 @@ const OfflineStudyScreen = ({ navigation }) => {
       console.error('지도를 열 수 없습니다. 위치 정보가 없습니다.');
     }
   };
-  const applyForStudy = async () => {
-    try {
-      if (!selectedStudy || !selectedStudy.studygroupName) {
-        console.error('선택된 스터디가 유효하지 않습니다.');
-        return;
-      }
-  
-      const isAlreadyApplied = offlineStudyList.some(study => study.studygroupName === selectedStudy.studygroupName);
-  
-      if (isAlreadyApplied) {
-        // 중복 신청 알림
-        Alert.alert('중복 신청', '이미 신청한 스터디입니다.');
-        return;
-      }
-  
-      // Firestore의 "offlineStudies" 컬렉션에 새로운 문서를 추가합니다.
-      const offlineStudiesCollection = collection(firestore, 'offlineStudies');
-      const newDocRef = await addDoc(offlineStudiesCollection, {
-        ...selectedStudy,
-        userId: currentUser ? currentUser.uid : null,
-        appliedAt: serverTimestamp(),
-      });
-  
-      // 성공 팝업
-      Alert.alert('스터디 신청 성공', '스터디 신청이 성공적으로 완료되었습니다.');
-  
 
   
-      // 스터디 모달을 닫습니다.
-      setStudyModalVisible(false);
-  
-    } catch (error) {
-      console.error('스터디 신청 오류:', error);
-     
+
+
+const applyForStudy = async () => {
+  try {
+    if (!selectedStudy || !selectedStudy.studyId) {
+      console.error('선택된 스터디가 유효하지 않습니다.');
+      return;
     }
-  };
+
+    const userDocRef = doc(firestore, 'applystudy', currentUser.uid);
+
+    // 사용자가 이미 이 스터디에 신청했는지 확인
+    const userAppliedStudiesQuery = query(
+      collection(userDocRef, 'offlineStudies'),  // 온라인 스터디 컬렉션
+      where('studyId', '==', selectedStudy.studyId)
+    );
+
+    const userAppliedStudiesSnapshot = await getDocs(userAppliedStudiesQuery);
+
+    if (!userAppliedStudiesSnapshot.empty) {
+      // 사용자가 이미 이 스터디에 신청했다면
+      Alert.alert('중복 신청', '이미 신청한 스터디입니다.');
+      return;
+    }
+
+    // 생성자와 현재 사용자 ID 비교하여 중복 확인
+    if (selectedStudy.createdBy === currentUser.uid) {
+      // 중복 신청 알림 또는 처리
+      Alert.alert('중복 신청', '현재 사용자가 생성한 스터디입니다. 중복으로 신청할 수 없습니다.');
+      return;
+    }
+
+    // Firestore의 "onlineStudies" 컬렉션에 새로운 문서를 추가합니다.
+    const offlineStudiesCollection = collection(userDocRef, 'offlineStudies');
+    const newDocRef = await addDoc(offlineStudiesCollection, {
+      ...selectedStudy,
+      appliedAt: serverTimestamp(),
+    });
+
+    // 성공 팝업
+    Alert.alert('스터디 신청 성공', '스터디 신청이 성공적으로 완료되었습니다.');
+
+   
+    // 스터디 모달을 닫습니다.
+    setStudyModalVisible(false);
+  } catch (error) {
+    console.error('스터디 신청 오류:', error);
+    // 오류 처리
+  }
+};
+
+  
   
   return (
     <View style={styles.container}>

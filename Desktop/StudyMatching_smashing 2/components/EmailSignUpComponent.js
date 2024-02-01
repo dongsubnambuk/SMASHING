@@ -57,7 +57,7 @@ const EmailSignUpComponent = ({ navigation }) => {
     const userRef = ref(database, 'users/' + userId);
     set(userRef, {
       email: email,
-      username: username,
+      user_id: id,
       password: password
     });
   };
