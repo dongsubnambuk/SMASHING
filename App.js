@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingTop: windowHeight * 0.01,
     marginHorizontal: windowWidth * 0.05,
     marginVertical: windowHeight * 0.01,
   },
