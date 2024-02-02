@@ -14,7 +14,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, addDoc, collection } from 'firebase/firestore';
+import { getFirestore, addDoc, collection,updateDoc,doc,setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { firebaseConfig } from '../firebaseConfig';
 import * as Location from 'expo-location';
@@ -197,6 +197,7 @@ const Studyplus = () => {
 
   const onCreateStudyPress = async () => {
     try {
+      const selectedPeopleValue = selectedPeople || 4;
       // 현재 타임스탬프를 사용하여 보기 쉽게 스터디 ID 생성
       const studyId = format(new Date(), 'yyyyMMddHHmmssSSS');
       
@@ -221,13 +222,12 @@ const Studyplus = () => {
   
       // studyLocations에서 얻은 위치 정보의 ID를 활용하여 studies 컬렉션에 저장
       const studyLocationId = studyLocationRef.id;
-  
-      // 보기 쉽게 생성된 스터디 ID를 사용하여 studies 컬렉션에 스터디 추가
-      const studyRef = collection(firestore, 'studies');
-      const newStudyRef = await addDoc(studyRef, {
-        studyId, // 사용자가 보기 쉽게 만든 스터디 ID
+      const initialParticipants = 0;
+
+      const studyRef = doc(firestore, 'studies', studyId);
+      await setDoc(studyRef, {
+        studyId,
         studygroupName,
-        selectedCategory,
         studyPeriod,
         location: {
           id: studyLocationId,
@@ -239,16 +239,18 @@ const Studyplus = () => {
         isOnline,
         createdBy: currentUser ? currentUser.uid : null,
         createdAt: timestamp,
+        currentParticipants: initialParticipants,  // 추가: 현재 참가자 수 필드
+        totalParticipants: selectedCategory || selectedPeopleValue,
       });
+
   
-      alert(`스터디 생성이 완료되었습니다. 스터디 ID: ${studyId}`);
+      alert(`스터디 생성이 완료되었습니다.`);
       navigation.goBack();
     } catch (error) {
       console.error('스터디 생성 오류:', error);
       alert(`스터디 생성 중 오류가 발생했습니다.`);
     }
   };
-
   const openImagePicker = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -303,9 +305,24 @@ const Studyplus = () => {
   };
 
   const onDayPress = (day) => {
-    setStudyPeriod(day.dateString);
-    setCalendarVisible(false);
+    // 현재 날짜를 가져옵니다.
+    const 현재날짜 = new Date();
+    현재날짜.setHours(0, 0, 0, 0); // 정확한 비교를 위해 시간을 자정으로 설정합니다.
+  
+    // 선택한 날짜를 Date 객체로 변환합니다.
+    const 선택한날짜 = new Date(day.dateString);
+  
+    // 선택한 날짜가 오늘 이전인지 확인합니다.
+    if (선택한날짜 < 현재날짜) {
+      // 사용자에게 오늘 이후의 날짜를 선택하도록 안내하는 메시지를 표시합니다.
+      alert('오늘 이후의 날짜를 선택해주세요.');
+    } else {
+      // 선택한 날짜를 학습 기간으로 설정하고 캘린더를 닫습니다.
+      setStudyPeriod(day.dateString);
+      setCalendarVisible(false);
+    }
   };
+  
 
   const handleBackPress = () => {
     navigation.goBack();
@@ -356,12 +373,13 @@ const Studyplus = () => {
             step={1}
             value={selectedPeople}
             onValueChange={(value) => {
-              setSelectedPeople(value);
-              setSelectedCategory(`${value}명`); // 선택된 카테고리도 업데이트
+              const numericValue = parseInt(value, 10); // 슬라이더 값 숫자로 변환
+              setSelectedPeople(numericValue);
+              setSelectedCategory(numericValue); // 선택된 카테고리도 업데이트
             }}
-            minimumTrackTintColor="#3D4AE7" // 최소 트랙의 색상
-            maximumTrackTintColor="#89a5f7" // 최대 트랙의 색상
-            thumbTintColor="#3D4AE7" // 슬라이더 썸의 색상
+            minimumTrackTintColor="#3D4AE7"
+            maximumTrackTintColor="#89a5f7"
+            thumbTintColor="#3D4AE7"
           />
         </View>
 
@@ -371,7 +389,7 @@ const Studyplus = () => {
             onPress={() => setCalendarVisible(true)}
           >
             <Text style={styles.periodBoxText}>
-              {studyPeriod ? `학습 기간: ${studyPeriod}` : '학습 기간 선택'}
+              {studyPeriod ? `학습 기간: ${studyPeriod} 까지` : '학습 기간 선택'}
             </Text>
           </TouchableOpacity>
         </View>

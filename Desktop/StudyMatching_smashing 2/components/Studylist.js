@@ -15,7 +15,7 @@ import { initializeApp } from 'firebase/app';
 const StudyList = () => {
   const [myStudies, setMyStudies] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(true);  // 최초 진입 시에만 자동 새로고침
+  const [isRefreshing, setIsRefreshing] = useState(false);  // 최초 진입 시에만 자동 새로고침
   const [studyType, setStudyType] = useState('all');
 
 
@@ -24,76 +24,38 @@ const StudyList = () => {
     const firestore = getFirestore(app);
     const auth = getAuth(app);
   
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setCurrentUser(currentUser);
   
         const fetchMyStudies = async () => {
           try {
-            // 오프라인 스터디 가져오기
             const offlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'));
             const offlineStudiesData = offlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-            // 온라인 스터디 가져오기
+  
             const onlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'));
             const onlineStudiesData = onlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-            // 오프라인 스터디와 온라인 스터디를 합쳐서 setMyStudies 호출
+  
             setMyStudies([...offlineStudiesData, ...onlineStudiesData]);
-        
-            // Firestore 스터디 컬렉션의 변화 감지
-            const unsubscribeOfflineStudies = onSnapshot(
-              collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'),
-              (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                  if (change.type === 'removed') {
-                    // 삭제된 오프라인 스터디를 리스트에서 제거
-                    setMyStudies((prevStudies) => prevStudies.filter((study) => study.id !== change.doc.id));
-                  } else if (change.type === 'added') {
-                    // 새로 생성된 오프라인 스터디를 리스트에 추가
-                    setMyStudies((prevStudies) => [...prevStudies, { id: change.doc.id, ...change.doc.data() }]);
-                  }
-                });
-              }
-            );
-            // 온라인 스터디에 대한 변경도 감지
-          const unsubscribeOnlineStudies = onSnapshot(
-            collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'),
-            (snapshot) => {
-              snapshot.docChanges().forEach((change) => {
-                if (change.type === 'removed') {
-                  // 삭제된 온라인 스터디를 리스트에서 제거
-                  setMyStudies((prevStudies) => prevStudies.filter((study) => study.id !== change.doc.id));
-                } else if (change.type === 'added') {
-                  // 새로 생성된 온라인 스터디를 리스트에 추가
-                  setMyStudies((prevStudies) => [...prevStudies, { id: change.doc.id, ...change.doc.data() }]);
-                }
-              });
-            }
-           );
-            return () => {
-              unsubscribeOfflineStudies();
-              unsubscribeOnlineStudies();
-            };
           } catch (error) {
             console.error('스터디 가져오기 오류:', error);
             // 오류 처리
           }
         };
-        
   
         fetchMyStudies();
       } else {
         setCurrentUser(null);
         setMyStudies([]);
       }
-    }, []);
+    }, []); // 두 번째 인자가 빈 배열이므로 한 번만 실행됩니다.
   
     return () => {
       // Cleanup 함수에서 감지 리스너 해제
       unsubscribe();
     };
   }, []);
+  
 
   const onRefresh = () => {
     // 사용자가 직접 새로고침을 시도했을 때에만 함수 실행
@@ -106,10 +68,11 @@ const StudyList = () => {
   };
   
 
-  const renderMyStudyItem = ({ item }) => {
+  const renderMyStudyItem = ({ item,index }) => {
+    const key = `${item.id}-${index}`;
     if (studyType === 'all' || (studyType === 'online' && item.isOnline) || (studyType === 'offline' && !item.isOnline)) {
       return (
-        <TouchableOpacity>
+        <TouchableOpacity key={key}>
           <View style={styles.studyItemContainer}>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>스터디명: </Text>
@@ -117,7 +80,7 @@ const StudyList = () => {
             </View>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>인원수: </Text>
-              <Text style={[styles.valueText]}>{item.selectedCategory || '없음'}</Text>
+              <Text style={[styles.valueText]}>{item.totalParticipants || '없음'}명</Text>
             </View>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>기간: </Text>
@@ -152,15 +115,17 @@ const StudyList = () => {
       </View>
 
       {currentUser ? (
-        <FlatList
-          data={myStudies}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMyStudyItem}
-          contentContainerStyle={{ flexGrow: 1 }}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-          }
-        />
+     <FlatList
+     data={myStudies}
+     keyExtractor={(item) => item.id} // 또는 다른 고유한 속성 사용
+     renderItem={renderMyStudyItem}
+     contentContainerStyle={{ flexGrow: 1 }}
+     refreshControl={
+       <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+     }
+   />
+   
+     
       ) : (
         <Text>로그인이 필요합니다.</Text>
       )}

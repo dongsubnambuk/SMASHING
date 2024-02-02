@@ -15,7 +15,7 @@ import {
   getDocs,
   query,
   where,
-  addDoc, serverTimestamp,doc
+  addDoc, serverTimestamp,doc,updateDoc
 } from 'firebase/firestore';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
@@ -46,24 +46,27 @@ const OfflineStudyScreen = ({ navigation }) => {
       try {
         const q = query(collection(firestore, 'studies'), where('isOnline', '==', false));
         const querySnapshot = await getDocs(q);
-
+    
         const studies = [];
         for (const doc of querySnapshot.docs) {
           const studyData = doc.data();
-
-          // study의 locationId를 사용하여 studies 컬렉션에서 위치 정보 가져오기
+    
           const locationId = studyData?.location?.id;
           if (locationId) {
-            // 여기서는 location 정보를 추가하지 않습니다.
-            studies.push(studyData);
+            studies.push({
+              ...studyData,
+              currentParticipants: Number(studyData.currentParticipants) || 0,
+              totalParticipants: Number(studyData.totalParticipants) || 0,
+            });
           }
         }
-
+    
         setOfflineStudyList(studies);
       } catch (error) {
         console.error('오프라인 스터디 목록 가져오기 오류:', error);
       }
     };
+    
 
     getOfflineStudyList(); // 함수 호출
   }, []);
@@ -97,76 +100,98 @@ const OfflineStudyScreen = ({ navigation }) => {
   };
 
   const showStudyModal = (study) => {
-    setSelectedStudy(study); // setSelectedStudy 사용
-    setSelectedStudyLocation(study.location);
+  
+    setSelectedStudy(study); // 주석 처리
+    setSelectedStudyLocation(study.location); // 주석 처리
     setStudyModalVisible(true);
   };
-  // 지도 모달을 열 때 호출되는 함수
  
  
-  
-  const openMap = () => {
-    const studyLocation = selectedStudy?.location;
-    if (studyLocation?.latitude && studyLocation?.longitude) {
-      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${studyLocation.latitude},${studyLocation.longitude}`;
-      Linking.openURL(mapUrl);
-    } else {
-      console.error('지도를 열 수 없습니다. 위치 정보가 없습니다.');
-    }
-  };
-
+    // 지도 모달을 열 때 호출되는 함수
+    const openMap = () => {
+      const studyLocation = selectedStudy?.location;
+      if (studyLocation && studyLocation.latitude !== null && studyLocation.longitude !== null) {
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${studyLocation.latitude},${studyLocation.longitude}`;
+        Linking.openURL(mapUrl);
+      } else {
+        console.error('지도를 열 수 없습니다. 위치 정보가 없습니다.');
+      }
+    };
   
 
 
-const applyForStudy = async () => {
-  try {
-    if (!selectedStudy || !selectedStudy.studyId) {
-      console.error('선택된 스터디가 유효하지 않습니다.');
-      return;
-    }
+    const applyForStudy = async () => {
+      try {
+        if (!selectedStudy || !selectedStudy.studyId) {
+          console.error('선택된 스터디가 유효하지 않습니다.');
+          return;
+        }
+    
+        const userDocRef = doc(firestore, 'applystudy', currentUser.uid);
+    
+        // 사용자가 이미 이 스터디에 신청했는지 확인
+        const userAppliedStudiesQuery = query(
+          collection(userDocRef, 'offlineStudies'),  // 온라인 스터디 컬렉션
+          where('studyId', '==', selectedStudy.studyId)
+        );
+    
+        const userAppliedStudiesSnapshot = await getDocs(userAppliedStudiesQuery);
+    
+        if (!userAppliedStudiesSnapshot.empty) {
+          // 사용자가 이미 이 스터디에 신청했다면
+          Alert.alert('중복 신청', '이미 신청한 스터디입니다.');
+          return;
+        }
+    
+        // 생성자와 현재 사용자 ID 비교하여 중복 확인
+        if (selectedStudy.createdBy === currentUser.uid) {
+          // 중복 신청 알림 또는 처리
+          Alert.alert('중복 신청', '현재 사용자가 생성한 스터디입니다. 중복으로 신청할 수 없습니다.');
+          return;
+        }
 
-    const userDocRef = doc(firestore, 'applystudy', currentUser.uid);
+        const currentParticipants = Number(selectedStudy.currentParticipants) || 0;
+        const totalParticipants = Number(selectedStudy.totalParticipants) || 0;
+    
+        if (currentParticipants >= totalParticipants) {
+          // 마감된 경우
+          Alert.alert('마감', '이 스터디는 마감되었습니다.');
+          return;
+        }
 
-    // 사용자가 이미 이 스터디에 신청했는지 확인
-    const userAppliedStudiesQuery = query(
-      collection(userDocRef, 'offlineStudies'),  // 온라인 스터디 컬렉션
-      where('studyId', '==', selectedStudy.studyId)
-    );
+        const updatedCurrentParticipants = Number(selectedStudy?.currentParticipants) + 1;
 
-    const userAppliedStudiesSnapshot = await getDocs(userAppliedStudiesQuery);
-
-    if (!userAppliedStudiesSnapshot.empty) {
-      // 사용자가 이미 이 스터디에 신청했다면
-      Alert.alert('중복 신청', '이미 신청한 스터디입니다.');
-      return;
-    }
-
-    // 생성자와 현재 사용자 ID 비교하여 중복 확인
-    if (selectedStudy.createdBy === currentUser.uid) {
-      // 중복 신청 알림 또는 처리
-      Alert.alert('중복 신청', '현재 사용자가 생성한 스터디입니다. 중복으로 신청할 수 없습니다.');
-      return;
-    }
-
-    // Firestore의 "onlineStudies" 컬렉션에 새로운 문서를 추가합니다.
-    const offlineStudiesCollection = collection(userDocRef, 'offlineStudies');
-    const newDocRef = await addDoc(offlineStudiesCollection, {
-      ...selectedStudy,
-      appliedAt: serverTimestamp(),
-    });
-
-    // 성공 팝업
-    Alert.alert('스터디 신청 성공', '스터디 신청이 성공적으로 완료되었습니다.');
-
-   
-    // 스터디 모달을 닫습니다.
-    setStudyModalVisible(false);
-  } catch (error) {
-    console.error('스터디 신청 오류:', error);
-    // 오류 처리
-  }
-};
-
+        if (selectedStudy) {
+          const studyDocRef = doc(firestore, 'studies', selectedStudy.studyId);
+        
+          // 생성자가 정의되어 있지 않은 경우 기본값으로 설정
+          const createdBy = selectedStudy.createdBy || "unknown";
+        
+          await updateDoc(studyDocRef, { currentParticipants: updatedCurrentParticipants });
+        } else {
+          console.error('selectedStudy가 null 또는 undefined입니다.');
+        }
+    
+        // Firestore의 "offlineStudies" 컬렉션에 새로운 문서를 추가합니다.
+        const offlineStudiesCollection = collection(userDocRef, 'offlineStudies');
+        const newDocRef = await addDoc(offlineStudiesCollection, {
+          studyId: selectedStudy.studyId,  // studyId 추가
+          ...selectedStudy,
+          appliedAt: serverTimestamp(),
+          // createdBy: createdBy, // 생성자 추가
+        });
+    
+        // 성공 팝업
+        Alert.alert('스터디 신청 성공', '스터디 신청이 성공적으로 완료되었습니다.');
+       
+        // 스터디 모달을 닫습니다.
+        setStudyModalVisible(false);
+      } catch (error) {
+        console.error('스터디 신청 오류:', error);
+        // 오류 처리
+      }
+    };
+    
   
   
   return (
@@ -206,7 +231,7 @@ const applyForStudy = async () => {
                 <Text style={styles.studyTitle}>{study.studygroupName}</Text>
                 <View style={styles.studyInfo}>
                   <Text style={styles.studyInfoText}>
-                    인원수: {study.selectedCategory || '없음'}
+                  인원수: {study.currentParticipants}/{study.totalParticipants}
                   </Text>
                   <Text style={styles.studyInfoText}>
                     기간: {study.studyPeriod !== undefined ? study.studyPeriod : '없음'}
@@ -239,7 +264,7 @@ const applyForStudy = async () => {
           <View style={styles.modalContent}>
             <Text style={styles.modalLabel}>인원수:</Text>
             <Text style={styles.modalText}>
-              {selectedStudy.selectedCategory || '없음'}
+              {selectedStudy.totalParticipants || '없음'}
             </Text>
           </View>
           <View style={styles.modalContent}>

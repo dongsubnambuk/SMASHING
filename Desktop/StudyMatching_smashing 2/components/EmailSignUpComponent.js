@@ -40,14 +40,14 @@ const EmailSignUpComponent = ({ navigation }) => {
 
       // Firebase Authentication에서 제공하는 updateProfile 함수를 사용하여 사용자 프로필 업데이트
       await updateProfile(userCredential.user, {
-        displayName: username,
+        displayName: id,
       });
 
       // Firebase Realtime Database에 사용자 정보 저장
       saveUserDataToFirebase(userId);
 
       // 회원가입 성공 후 다음 페이지로 이동
-      navigation.navigate('NicknameCreationPage', { userId, email, username, password });
+      navigation.navigate('NicknameCreationPage', { userId, email, id, password });
     } catch (error) {
       console.error('회원가입 실패:', error.message);
     }
