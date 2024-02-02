@@ -22,10 +22,11 @@ const SignUpFirstScreen = ({ navigation }) => {
         <View style={styles.secondaryButton}>
           <Text style={styles.buttonText}>로그인</Text>
         </View>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleSignUp}>
+        <Text style={styles.buttonText1}>회원가입</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.primaryButton} onPress={handleSignUp}>
-        <Text style={styles.buttonText}>회원가입</Text>
       </TouchableOpacity>
+      
     </View>
   );
 };
@@ -33,16 +34,19 @@ const SignUpFirstScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    marginLeft: 20, // Use appropriate values for margin
-    marginTop: 50, // Use appropriate values for margin
+    // justifyContent: 'flex-start',
+    // alignItems: 'flex-start',
+    // marginLeft: 20, // Use appropriate values for margin
+   top:"40%",
+   alignItems: 'center',
   },
   smasing: {
     fontSize: 50,
     color: '#3D4AE7',
-    // fontFamily: 'Ultra',
+    fontFamily: 'Ultra',
     lineHeight: 54,
+     alignItems: 'center',
+     fontWeight: 'bold',
   },
   studyDescription: {
     fontSize: 18,
@@ -51,29 +55,39 @@ const styles = StyleSheet.create({
     lineHeight: 24, // Use appropriate values for lineHeight
   },
   buttonContainer: {
-    marginTop: 20, // Use appropriate values for margin
+    top:"27%",
+   width:"90%"
   },
   secondaryButton: {
-    width: 360,
-    height: 42,
-    backgroundColor: '#3D4AE7',
-    borderRadius: 4,
+  
+    height: 50,
+    marginVertical: 5,
+    backgroundColor: '#ffffff',
+    borderColor: '#3d4ae7',
+    borderWidth: 1,
+    borderRadius: 10,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
   },
   primaryButton: {
     marginTop: 20, // Use appropriate values for margin
-    width: 336,
-    height: 42,
+    
+    height: 50,
     backgroundColor: '#3D4AE7',
-    borderRadius: 4,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
+    color: '#3D4AE7',
+    fontSize: 20, 
+    fontWeight: 'bold',
+  },
+  buttonText1: {
     color: 'white',
-    fontSize: 16, // Use appropriate values for fontSize
+    fontSize: 20, 
+    fontWeight: 'bold',
   },
 });
 

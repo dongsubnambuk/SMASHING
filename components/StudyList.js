@@ -7,7 +7,7 @@ import {
   StyleSheet,
   RefreshControl,
 } from 'react-native';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs,onSnapshot } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
@@ -15,56 +15,64 @@ import { initializeApp } from 'firebase/app';
 const StudyList = () => {
   const [myStudies, setMyStudies] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);  // 최초 진입 시에만 자동 새로고침
   const [studyType, setStudyType] = useState('all');
+
 
   useEffect(() => {
     const app = initializeApp(firebaseConfig);
     const firestore = getFirestore(app);
     const auth = getAuth(app);
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
-
+  
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setCurrentUser(currentUser);
+  
         const fetchMyStudies = async () => {
           try {
-            const querySnapshot = await getDocs(collection(firestore, 'offlineStudies'));
-
-            const studiesData = [];
-            querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              if (data.userId === user.uid) {
-                studiesData.push({ id: doc.id, ...data });
-              }
-            });
-
-            setMyStudies(studiesData);
+            const offlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'));
+            const offlineStudiesData = offlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+            const onlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'));
+            const onlineStudiesData = onlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+            setMyStudies([...offlineStudiesData, ...onlineStudiesData]);
           } catch (error) {
-            console.error('Error fetching my studies:', error);
-          } finally {
-            setIsRefreshing(false);
+            console.error('스터디 가져오기 오류:', error);
+            // 오류 처리
           }
         };
-
+  
         fetchMyStudies();
       } else {
         setCurrentUser(null);
         setMyStudies([]);
       }
-    }, [isRefreshing]);
-
-    return () => unsubscribe();
+    }, []); // 두 번째 인자가 빈 배열이므로 한 번만 실행됩니다.
+  
+    return () => {
+      // Cleanup 함수에서 감지 리스너 해제
+      unsubscribe();
+    };
   }, []);
+  
 
   const onRefresh = () => {
-    setIsRefreshing(true);
+    // 사용자가 직접 새로고침을 시도했을 때에만 함수 실행
+    if (currentUser) {
+      setIsRefreshing(true);
+      setTimeout(() => {
+        setIsRefreshing(false);  // 사용자가 직접 새로고침할 때 2초 후에 새로고침 완료
+      }, 2000);
+    }
   };
+  
 
-  const renderMyStudyItem = ({ item }) => {
+  const renderMyStudyItem = ({ item,index }) => {
+    const key = `${item.id}-${index}`;
     if (studyType === 'all' || (studyType === 'online' && item.isOnline) || (studyType === 'offline' && !item.isOnline)) {
       return (
-        <TouchableOpacity>
+        <TouchableOpacity key={key}>
           <View style={styles.studyItemContainer}>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>스터디명: </Text>
@@ -72,7 +80,7 @@ const StudyList = () => {
             </View>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>인원수: </Text>
-              <Text style={[styles.valueText]}>{item.selectedCategory || '없음'}</Text>
+              <Text style={[styles.valueText]}>{item.totalParticipants || '없음'}명</Text>
             </View>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>기간: </Text>
@@ -107,15 +115,17 @@ const StudyList = () => {
       </View>
 
       {currentUser ? (
-        <FlatList
-          data={myStudies}
-          keyExtractor={(item) => item.id}
-          renderItem={renderMyStudyItem}
-          contentContainerStyle={{ flexGrow: 1 }}
-          refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
-          }
-        />
+     <FlatList
+     data={myStudies}
+     keyExtractor={(item) => item.id} // 또는 다른 고유한 속성 사용
+     renderItem={renderMyStudyItem}
+     contentContainerStyle={{ flexGrow: 1 }}
+     refreshControl={
+       <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
+     }
+   />
+   
+     
       ) : (
         <Text>로그인이 필요합니다.</Text>
       )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, SafeAreaView, StatusBar, Text, TouchableOpacity, TextInput, StyleSheet, Dimensions, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { initializeApp } from 'firebase/app';
@@ -64,47 +64,58 @@ const LoginPage = () => {
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={30} color="#3D4AE7" />
-        </TouchableOpacity>
-        <View style={styles.smashingHeader}></View>
-        <Text style={styles.login}>로그인</Text>
-        <Text style={styles.account}>계정</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={{ flex: 1, padding: 5, color: '#000' }}
-            placeholder="이메일을 입력하세요"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-          />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={35} color="#3D4AE7" />
+            </TouchableOpacity>
+          <Text style={styles.smasing}>SMASHING</Text>
+          <Text style={styles.login}>로그인</Text>
         </View>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={{ flex: 1, padding: 5, color: '#000' }}
-            placeholder="비밀번호를 입력하세요"
-            secureTextEntry={true}
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-          />
+        <View style = {styles.accountContainer}>
+          <Text style={styles.account}>계정</Text>
+          <View style={styles.emailInputContainer}>
+            <TextInput
+              style={{ color: '#000' }}
+              placeholder="이메일을 입력하세요"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+            />
+          </View>
+          <View style={styles.passwordInputContainer}>
+            <TextInput
+              style={{color: '#000' }}
+              placeholder="비밀번호를 입력하세요"
+              secureTextEntry={true}
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+            />
+          </View>
         </View>
         <TouchableOpacity style={styles.primary} onPress={handleLogin}>
           <Text style={styles.loginbtn}>로그인</Text>
         </TouchableOpacity>
+
         <View style={styles.linkContainer}>
-          <TouchableOpacity style={styles.link} onPress={navigateToFindAccount}>
+          <TouchableOpacity style={styles.accountLink} onPress={navigateToFindAccount}>
             <Text style={styles.linkText}>계정 찾기</Text>
           </TouchableOpacity>
           <View style={{ marginHorizontal: 20 }} />
-          <TouchableOpacity style={styles.link} onPress={navigateToFindPassword}>
+          <TouchableOpacity style={styles.passwordLink} onPress={navigateToFindPassword}>
             <Text style={styles.linkText}>비밀번호 찾기</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.or}>또는</Text>
+
+        <View style={styles.orContainer}>
+          <View style={styles.orLine} />
+          <Text style={styles.orText}>또는</Text>
+          <View style={styles.orLine} />
+        </View>
+
         <TouchableOpacity style={styles.secondary}>
           <Text style={styles.googlelongin}>구글로 로그인하기</Text>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 };
@@ -112,54 +123,88 @@ const LoginPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 20,
-    backgroundColor: '#ffffff',
+    position: 'relative',
   },
-  smashingHeader: {
-    // top: '3%',
-    backgroundColor: '#ffffff',
-    borderBottomColor: '#ccc',
-    padding: 10,
+
+  header: {
+    zIndex: 1,
+    height: 'auto',
     width: '100%',
+    paddingHorizontal: '3%',
+    position: 'absolute',
+    top: StatusBar.currentHeight, // StatusBar의 높이로 설정
+    backgroundColor: 'rgba(255, 255, 255, 0.5)', // 흰색 배경에 50% 투명도
   },
-  smashingText: {
-    color: '#3d4ae7',
-    fontSize: 35,
+
+  smasing: {
+    fontSize: 50,
+    color: '#3D4AE7',
+    fontFamily: 'Ultra',
+    lineHeight: 54,
+    alignItems: 'center',
     fontWeight: 'bold',
   },
+  inner:{
+    top:"10%"
+  },
+  
   login: {
     fontWeight: 'bold',
-    // top: '5%',
-    marginLeft: 10,
     textAlign: 'left',
     color: '#000000',
     fontWeight: '800',
     fontSize: 25,
     alignSelf: 'flex-start',
   },
+
+  accountContainer: {
+    marginTop: '10%',
+    width: '100%',
+    paddingHorizontal: '5%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  
   account: {
-    top: '13%',
-    marginLeft: 10,
     textAlign: 'left',
     color: '#000000',
-    fontWeight: '800',
     fontSize: 22,
     alignSelf: 'flex-start',
     fontWeight: 'bold',
   },
-  or: {
-    top: '13%',
-    marginLeft: 10,
-    textAlign: 'left',
-    color: '#000000',
-    fontWeight: '800',
+  orContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: '3%',
+    paddingHorizontal: '3%',
+  },
+  
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#3d4ae7',
+    marginHorizontal: '5%',
+  },
+  orText: {
+    height: 'auto',
+    color: 'black',
     fontSize: 18,
   },
-  inputContainer: {
-    top: '26%',
-    width: '95%',
+  emailInputContainer: {
+    marginTop: '5%',
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#3d4ae7',
+    marginVertical: 15,
+  },
+  passwordInputContainer: {
+    marginTop: '3%',
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     borderBottomWidth: 1,
@@ -167,15 +212,14 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   primary: {
+    marginTop: '1%',
     height: 50,
-    top: '11%',
-    width: '95%',
-    marginVertical: 20,
+    width: '92%',
     backgroundColor: '#3d4ae7',
     borderRadius: 10,
-    padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   loginbtn: {
     color: '#fcfcfc',
@@ -183,21 +227,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+
   linkContainer: {
+    width: '100%',
+    paddingHorizontal: '5%',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    top: '25%',
-    marginVertical: 10,
+    justifyContent: 'space-around',
+    marginTop: '5%',
+    marginBottom: '-1%', // marginBottom 값을 조절하여 살짝 겹치도록 함
   },
-  linkText: {
-    color: '#3d4ae7',
+  accountLink: {
+    width: '48%', // 반반으로 차지하도록 수정
+    alignItems: 'center',
+    color: 'black',
     fontSize: 18,
   },
+  passwordLink: {
+    width: '48%', // 반반으로 차지하도록 수정
+    alignItems: 'center',
+    color: 'black',
+    fontSize: 18,
+  },  
+  linkText: {
+    color: 'black',
+    fontSize: 18,
+  },
+  
+
   secondary: {
-    width: '95%',
+    width: '92%',
     height: 50,
-    top: '16%',
-    marginVertical: 10,
+    marginTop: '2%',
     backgroundColor: '#ffffff',
     borderColor: '#3d4ae7',
     borderWidth: 1,
@@ -205,6 +265,7 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   googlelongin: {
     color: '#3d4ae7',

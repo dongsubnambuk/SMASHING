@@ -15,7 +15,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, addDoc, collection } from 'firebase/firestore';
+import { getFirestore, addDoc, collection,updateDoc,doc,setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { firebaseConfig } from '../firebaseConfig';
 import * as Location from 'expo-location';
@@ -26,6 +26,8 @@ import { Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import Slider from '@react-native-community/slider';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Ionicons } from '@expo/vector-icons';
+import { format } from 'date-fns';
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -195,6 +197,10 @@ const Studyplus = () => {
 
   const onCreateStudyPress = async () => {
     try {
+      const selectedPeopleValue = selectedPeople || 4;
+      // 현재 타임스탬프를 사용하여 보기 쉽게 스터디 ID 생성
+      const studyId = format(new Date(), 'yyyyMMddHHmmssSSS');
+      
       const timestamp = new Date();
       const buildingName = await getBuildingName(selectedMapLocation);
   
@@ -216,9 +222,12 @@ const Studyplus = () => {
   
       // studyLocations에서 얻은 위치 정보의 ID를 활용하여 studies 컬렉션에 저장
       const studyLocationId = studyLocationRef.id;
-      const docRef = await addDoc(collection(firestore, 'studies'), {
+      const initialParticipants = 0;
+
+      const studyRef = doc(firestore, 'studies', studyId);
+      await setDoc(studyRef, {
+        studyId,
         studygroupName,
-        selectedCategory,
         studyPeriod,
         location: {
           id: studyLocationId,
@@ -228,11 +237,13 @@ const Studyplus = () => {
         },
         thumbnail: thumbnailURL,
         isOnline,
-        createdBy: currentUser ? currentUser.uid : null, // 현재 사용자의 UID 저장
+        createdBy: currentUser ? currentUser.uid : null,
         createdAt: timestamp,
+        currentParticipants: initialParticipants,  // 추가: 현재 참가자 수 필드
+        totalParticipants: selectedCategory || selectedPeopleValue,
         studyIntroduce,
       });
-  
+
       alert(`스터디 생성이 완료되었습니다.`);
       navigation.goBack();
     } catch (error) {
@@ -322,7 +333,7 @@ const Studyplus = () => {
         <View style={styles.textContainer}>
             <Text style={styles.mystudygroup}>모임 만들기</Text>
           <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-              <Text style={styles.backButtonText}>뒤로가기</Text>
+            <Ionicons name="close" size={34} color="#3D4AE7" />
             </TouchableOpacity>
         </View>
         <Text style={styles.mystudygroup_under}>대충 있어 보이는 말</Text>
@@ -348,12 +359,13 @@ const Studyplus = () => {
             step={1}
             value={selectedPeople}
             onValueChange={(value) => {
-              setSelectedPeople(value);
-              setSelectedCategory(`${value}명`); // 선택된 카테고리도 업데이트
+              const numericValue = parseInt(value, 10); // 슬라이더 값 숫자로 변환
+              setSelectedPeople(numericValue);
+              setSelectedCategory(numericValue); // 선택된 카테고리도 업데이트
             }}
-            minimumTrackTintColor="#3D4AE7" // 최소 트랙의 색상
-            maximumTrackTintColor="#89a5f7" // 최대 트랙의 색상
-            thumbTintColor="#3D4AE7" // 슬라이더 썸의 색상
+            minimumTrackTintColor="#3D4AE7"
+            maximumTrackTintColor="#89a5f7"
+            thumbTintColor="#3D4AE7"
           />
           <View style={styles.periodBoxContainer}>
             <Text style={styles.periodBoxTextBox}>
