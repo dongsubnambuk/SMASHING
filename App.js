@@ -12,6 +12,7 @@ import { Entypo } from '@expo/vector-icons';
 
 import MypageScreen from './screens/MypageScreen';
 import MapScreen from './screens/MapScreen';
+import ChatScreen from './screens/ChatScreen';
 //import CalendarScreen from './screens/CalendarScreen';
 //import NewScheduleScreen from './screens/NewScheduleScreen';
 
@@ -57,6 +58,10 @@ const App = ({ navigation }) => {
           <Stack.Screen
             name="MapScreen"
             component={MapScreen}
+          />
+          <Stack.Screen 
+            name="Chat"
+            component={ChatScreen} 
           />
           {/*
           <Stack.Screen

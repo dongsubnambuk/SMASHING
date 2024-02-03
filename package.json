@@ -23,6 +23,7 @@
     "react-native": "0.73.2",
     "react-native-calendars": "^1.1303.0",
     "react-native-elements": "^3.4.3",
+    "react-native-gifted-chat": "^2.4.0",
     "react-native-maps": "1.8.0",
     "undefined": "firebase/@lastest"
   },

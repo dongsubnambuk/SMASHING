@@ -5,8 +5,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import HomeScreen from '../screens/HomeScreen';
+import ChatScreen from '../screens/ChatScreen';
 import StudyScreen from '../screens/StudyScreen';
-import NotificationScreen from '../screens/NotificationScreen';
+//import NotificationScreen from '../screens/NotificationScreen';
 import MypageScreen from '../screens/MypageScreen';
 //import CalendarScreen from '../screens/CalendarScreen';
 
@@ -49,6 +50,17 @@ function BottomTabNavigationApp() {
         }}
       />
       <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          title: '채팅',
+          tabBarIcon: ({ color }) => (
+            <Icon name="menu-book" color={color} size={iconSize} />
+          ),
+        }}
+      />
+      {/*
+      <Tab.Screen
         name="Notification"
         component={NotificationScreen}
         options={{
@@ -58,6 +70,7 @@ function BottomTabNavigationApp() {
           ),
         }}
       />
+      */}
       {/*
       <Tab.Screen
         name="Calendar"

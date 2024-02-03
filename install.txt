@@ -20,6 +20,9 @@ npm install react-native-maps
 
 npm install expo-location
 
+<채팅>
+
+npm install react-native-gifted-chat
 
 ------------------------------------------------
 

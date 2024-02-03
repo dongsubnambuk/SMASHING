@@ -24,6 +24,8 @@ const userUID = 'IT0OPavkJshdCO6JNhUw';
 const Stack = createStackNavigator();
 
 const MainScreen = ({navigation}) => {
+  const [todos, setTodos] = useState({});
+
   const getUsers = async () => {
     try {
       const usersCollection = await firestore.collection('/userData/' + userUID + '/todoList').orderBy('createdAt', 'asc').get();
@@ -59,8 +61,6 @@ const MainScreen = ({navigation}) => {
 
     return unsubscribe;
   }, [navigation]);
-
-  const [todos, setTodos] = useState({});
 
   const handleNewBtn = () => {
     navigation.navigate('NewTodoScreen');
