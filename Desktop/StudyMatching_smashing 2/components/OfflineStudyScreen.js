@@ -287,22 +287,34 @@ const OfflineStudyScreen = ({ navigation }) => {
           >
             <Text style={styles.applyButtonText}>스터디 장소 확인하기</Text>
           </TouchableOpacity>
+          <View style={styles.studyIntroduceSeparator}></View>
+          <Text style={styles.applymodalLabel}>
+            <Text style={styles.introducestudyBackground}>스터디 소개</Text>
+          </Text>
+
+          <Text style={styles.introducestudytext}>
+  {selectedStudy.studyIntroduce || '없음'}
+</Text>
+          <View style={styles.applybuttonContainer}>
           <TouchableOpacity
-            style={[styles.applyButton, styles.applyNowButton]}
+            style={[styles.applyButton1, styles.applyNowButton]}
             onPress={applyForStudy} 
           >
             <Text style={styles.applyButtonText}>신청하기</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.applyButton2, styles.closeButton]}
+            onPress={() => setStudyModalVisible(false)}
+          >
+            <Text style={styles.applyButtonText}>닫기</Text>
+          </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <Text style={styles.modalText}>선택된 스터디가 없습니다.</Text>
       )}
-      <TouchableOpacity
-        style={[styles.applyButton, styles.closeButton]}
-        onPress={() => setStudyModalVisible(false)}
-      >
-        <Text style={styles.applyButtonText}>닫기</Text>
-      </TouchableOpacity>
+    
     </View>
   </View>
 </Modal>
@@ -442,13 +454,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
+    // marginTop: 22,
   },
   modalView: {
-    margin: 20,
+    width:"80%",
+    height:"80%",
+    // margin: 20,
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 35,
+    padding: 25,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -500,6 +514,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalLabel: {
+    fontSize: 16,
     fontWeight: 'bold',
     marginRight: 5,
   },
@@ -526,6 +541,28 @@ const styles = StyleSheet.create({
 
   closeButton: {
     marginLeft: 15, // 왼쪽 마진 추가
+  },
+  applyButton1:{
+    width:"40%",
+   
+    backgroundColor: '#3D4AE7', // 신청하기 버튼 배경색
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  applyButton2:{
+    width:"40%",
+    // top:"10%",
+    backgroundColor: '#3D4AE7', // 취소하기 버튼 배경색
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  applybuttonContainer: {
+    top:"55%",
+    flexDirection: 'row', // 수평으로 나란히 배치
+    justifyContent: 'space-between', // 간격 최대화
+ 
   },
   mapModalView: {
     margin: 20,
@@ -560,6 +597,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginTop: 20,
+  },
+  studyIntroduceSeparator: {
+    top:"3%",
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 5,
+  },
+  introducestudyBackground: {
+   
+    // paddingTop: 20,
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'black',
+    backgroundColor: '#f2f2f2', // 회색 배경색 추가
+  },
+  applymodalLabel:{
+    top:"5%",
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  
+  
+  introducestudytext:{
+ 
+    height:"40%",
+    top:"8%",
+    fontSize: 15,
+    color: 'black',
   },
 
 });

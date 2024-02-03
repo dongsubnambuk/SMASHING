@@ -6,13 +6,15 @@ import { Ionicons } from '@expo/vector-icons';
 const SerchId = () => {
   const navigation = useNavigation();
   return (
+    
     <View style={styles.container}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={30} color="#3D4AE7" />
+            <View style={styles.header}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={35} color="#3D4AE7" />
         </TouchableOpacity>
+       <Text style={styles.smasing}>SMASHING</Text>
+      </View>
+      
       <Text style={styles.text}>
         아이디 찾기
       </Text>
@@ -20,12 +22,12 @@ const SerchId = () => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.inputText}
-          placeholder="휴대전화번호를 입력하세요('-'제외)"
-          keyboardType="phone-pad"
+          placeholder="이메일을 입력하세요"
+          keyboardType="email"
         />
         <TouchableOpacity style={styles.button1}>
           <Text style={styles.text1}>
-            인증번호 전송
+           이메일 전송
           </Text>
         </TouchableOpacity>
       </View>
@@ -65,7 +67,23 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: '#ffffff',
   },
+  header: {
+    top:"6%",
+    height:50,
+    marginLeft:"3%",
+     alignSelf: 'flex-start', // 이 부분을 추가하여 상단에 배치
+   },
+  smasing: {
+  
+    fontSize: 50,
+    color: '#3D4AE7',
+    fontFamily: 'Ultra',
+    lineHeight: 54,
+     alignItems: 'center',
+     fontWeight: 'bold',
+  },
   text: {
+    top:"20%",
     marginVertical: 5,
     textAlign: 'center',
     color: '#000000',
@@ -75,6 +93,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   inputContainer: {
+    top:"45%",
     width: '80%',
     flexDirection: 'row',
     alignItems: 'center',
@@ -92,6 +111,7 @@ const styles = StyleSheet.create({
     height: 10,
   },
   button1: {
+
     width: '30%',
     borderColor: '#3d4ae7',
     borderWidth: 1,
@@ -132,7 +152,7 @@ const styles = StyleSheet.create({
   },
   primary: {
     height: 50,
-    top: '4%',
+    top: '23%',
     width: '85%',
     marginVertical: 20,
     backgroundColor: '#3d4ae7',
@@ -146,12 +166,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  rectangle284: {
-    // styles for rectangle284
-  },
-  rectangle285: {
-    // styles for rectangle285
-  },
+
   backButton: {
     alignSelf: 'flex-start',
   },

@@ -1,6 +1,7 @@
 import React, { useState, useEffect,useRef } from 'react';
 import {
   View,
+  ScrollView,
   Text,
   StyleSheet,
   TextInput,
@@ -10,6 +11,7 @@ import {
   Image,
   TouchableWithoutFeedback,
   Keyboard, // 추가
+  
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -27,6 +29,7 @@ import Slider from '@react-native-community/slider';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
@@ -48,7 +51,8 @@ const Studyplus = () => {
   const [googleMapUrl, setGoogleMapUrl] = useState('');
   const [searchLocation, setSearchLocation] = useState(null);
   const [selectedPeople, setSelectedPeople] = useState(4);
-  
+  const [studyIntroduce, setStudyIntroduce] = useState('');
+  const introduceLength = studyIntroduce.length;
   
   const mapViewRef = useRef(null);
   
@@ -69,8 +73,6 @@ const Studyplus = () => {
     setSelectedMapLocation(clickedLocation);
     setMapModalVisible(true); // 모달을 열도록 수정
   };
-
-
   const showConfirmationDialog = () => {
     Alert.alert(
       "위치 선택 확인",
@@ -241,9 +243,9 @@ const Studyplus = () => {
         createdAt: timestamp,
         currentParticipants: initialParticipants,  // 추가: 현재 참가자 수 필드
         totalParticipants: selectedCategory || selectedPeopleValue,
+        studyIntroduce,
       });
 
-  
       alert(`스터디 생성이 완료되었습니다.`);
       navigation.goBack();
     } catch (error) {
@@ -251,6 +253,7 @@ const Studyplus = () => {
       alert(`스터디 생성 중 오류가 발생했습니다.`);
     }
   };
+
   const openImagePicker = async () => {
     try {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -322,8 +325,6 @@ const Studyplus = () => {
       setCalendarVisible(false);
     }
   };
-  
-
   const handleBackPress = () => {
     navigation.goBack();
   };
@@ -342,12 +343,13 @@ const Studyplus = () => {
  
 
   return (
+    
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <View style={styles.textContainer}>
             <Text style={styles.mystudygroup}>모임 만들기</Text>
-            <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-              <Ionicons name="close" size={34} color="#3D4AE7" />
+          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+            <Ionicons name="close" size={34} color="#3D4AE7" />
             </TouchableOpacity>
         </View>
         <Text style={styles.mystudygroup_under}>대충 있어 보이는 말</Text>
@@ -381,18 +383,24 @@ const Studyplus = () => {
             maximumTrackTintColor="#89a5f7"
             thumbTintColor="#3D4AE7"
           />
+          <View style={styles.periodBoxContainer}>
+            <Text style={styles.periodBoxTextBox}>
+              {'목표 기간'}
+            </Text>
+            <TouchableOpacity
+              style={styles.periodBox}
+              onPress={() => setCalendarVisible(true)}
+            >
+              <Text style={studyPeriod ? styles.selectedPeriodBoxText : styles.unSelectedPeriodBoxText}>
+                {studyPeriod ? `${studyPeriod}` : '선택'}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={styles.periodBoxContainer}>
-          <TouchableOpacity
-            style={styles.periodBox}
-            onPress={() => setCalendarVisible(true)}
-          >
-            <Text style={styles.periodBoxText}>
-              {studyPeriod ? `학습 기간: ${studyPeriod} 까지` : '학습 기간 선택'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {/* <View style={styles.periodBoxContainer}>
+          
+        </View> */}
 
         <View style={styles.onlineOfflineButtonsContainer}>
           <TouchableOpacity
@@ -414,10 +422,16 @@ const Studyplus = () => {
         <TouchableOpacity
           style={styles.locationButton}
           onPress={() => {
-            openMap();
-            setSearchLocation(null); 
-        
+            if (isOnline) {
+              // 온라인일 때 알림 메시지 표시
+              Alert.alert('알림', '온라인 스터디에서는 스터디 장소를 선택할 수 없습니다.');
+            } else {
+              // 오프라인일 때만 스터디 장소 모달 열기
+              openMap();
+              setSearchLocation(null);
+            }
           }}
+      
         >
           <Text style={styles.locationButtonText}>스터디 장소</Text>
         </TouchableOpacity>
@@ -585,12 +599,28 @@ const Studyplus = () => {
           style={styles.thumbnailButton}
           onPress={openImagePicker}
         >
-          <Text style={styles.thumbnailButtonText}>스터디 썸네일</Text>
+          <Text style={styles.thumbnailButtonText}>스터디 섬네일</Text>
         </TouchableOpacity>
         {thumbnail && (
           <Image source={{ uri: thumbnail }} style={styles.thumbnailPreview} />
         )}
-      </View>
+        </View>
+        <View style={styles.introduceStudyBoxContainer}>
+          <TextInput
+            style={styles.introdeceStudyText}
+            placeholder="스터디 소개를 작성하세요"
+            placeholderTextColor="#7d7d7d"
+            onChangeText={(text) => setStudyIntroduce(text)}
+            value={studyIntroduce}
+            maxLength={500}
+            multiline // 여러 줄 입력 활성화
+            textAlignVertical="top" // 텍스트 상단 정렬
+          />
+          <Text style={styles.introduceStudyLength}>
+            {introduceLength}/500
+          </Text>
+        </View>
+
         <TouchableOpacity
           style={styles.createStudyButton}
           onPress={onCreateStudyPress}
@@ -598,7 +628,10 @@ const Studyplus = () => {
           <Text style={styles.createStudyButtonText}>스터디 생성하기</Text>
         </TouchableOpacity>
       
-      </View>
+
+
+
+      </ScrollView>
     </TouchableWithoutFeedback>
     
   );
@@ -662,7 +695,6 @@ const styles = StyleSheet.create({
   categoryBoxContainer: {
     marginTop: '5%',
     marginHorizontal: 15,
-    padding: '5%',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -672,6 +704,7 @@ const styles = StyleSheet.create({
   },
 
   categoryLabel: {
+    marginTop: '3%',
     fontSize: 16,
     alignItems: 'center',
     color: 'black',
@@ -680,7 +713,6 @@ const styles = StyleSheet.create({
   
   // 업데이트된 스타일
   categoryBox: {
-    padding: '3%',
     flexDirection: 'column', // 수직 방향으로 정렬
     alignItems: 'center',
   },
@@ -692,6 +724,7 @@ const styles = StyleSheet.create({
   },
 
   slider: {
+    marginTop: '3%',
     width: '100%',
     alignSelf: 'center', // 슬라이더를 가운데 정렬
   },
@@ -702,29 +735,44 @@ const styles = StyleSheet.create({
   },
 
   periodBoxContainer: {
-    marginTop: '5%',
-    marginHorizontal: 15,
-    padding: 15,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     position: 'relative',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#3D4AE7', // 밑줄 색상 지정
+    paddingBottom: '3%',
   },
   
   periodBox: {
-    borderRadius: 10,
+    flex: 1,
+    marginTop: '3%',
     flexDirection: 'column', // 수직 방향으로 정렬
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
   },
   
-  periodBoxText: {
-    color: 'black',
+  unSelectedPeriodBoxText: {
+    flex: 1,
+    marginRight: '5%',
+    color: '#7d7d7d',
     fontSize: 16,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 
+  selectedPeriodBoxText: {
+    flex: 1,
+    marginRight: '5%',
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+  periodBoxTextBox: {
+    marginTop: '3%',
+    marginLeft: '5%',
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
   thumbnailLocationButtonsContainer: {
     // marginTop:"25%",
     flexDirection: 'row',
@@ -798,6 +846,36 @@ const styles = StyleSheet.create({
     color: 'black',
   },
 
+  introduceStudyBoxContainer: {
+    marginTop: '5%',
+    marginHorizontal: 15,
+    paddingHorizontal: '3%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#3D4AE7',
+    
+  },
+  
+  introdeceStudyText: {
+    marginVertical: '2%',
+    color: 'black',
+    textAlign: 'left',
+    fontSize: 16,
+    marginRight: 'auto',
+  },
+
+  introduceStudyLength: {
+    color: '#7d7d7d',
+    textAlign: 'right',
+    fontSize: 10,
+    marginLeft: 'auto',
+    marginRight: '2%',
+    marginBottom: '2%',
+  },
+  
   createStudyButton: {
     // top: '15%',
     width: '40%',

@@ -66,7 +66,7 @@ const OfflineStudyScreen = ({ navigation }) => {
     };
     
 
-    getOfflineStudyList(); // 함수 호출
+    getOnlineStudyList(); // 함수 호출
   }, []);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -207,6 +207,9 @@ const OfflineStudyScreen = ({ navigation }) => {
                   <Text style={styles.studyInfoText}>
                     기간: {study.studyPeriod !== undefined ? study.studyPeriod : '없음'}
                   </Text>
+                  <Text style={styles.studyInfoText}>
+                    장소: 온라인 플렛폼
+                  </Text>
                  
                 </View>
               </View>
@@ -214,7 +217,6 @@ const OfflineStudyScreen = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
       <Modal
   animationType="slide"
   transparent={true}
@@ -244,24 +246,38 @@ const OfflineStudyScreen = ({ navigation }) => {
                 : '없음'}
             </Text>
           </View>
-         
+          <View style={styles.modalContent}>
+            <Text style={styles.modalLabel}>스터디 장소: 온라인 플렛폼</Text>
+        
+          </View>
        
+          <View style={styles.studyIntroduceSeparator}></View>
+          <Text style={styles.applymodalLabel}>
+            <Text style={styles.introducestudyBackground}>스터디 소개</Text>
+          </Text>
+          <Text style={styles.introducestudytext}>
+            {selectedStudy.studyIntroduce || '없음'}
+          </Text>
+          <View style={styles.applybuttonContainer}>
           <TouchableOpacity
-            style={[styles.applyButton, styles.applyNowButton]}
+            style={[styles.applyButton1, styles.applyNowButton]}
             onPress={applyForStudy} 
           >
             <Text style={styles.applyButtonText}>신청하기</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.applyButton2, styles.closeButton]}
+            onPress={() => setStudyModalVisible(false)}
+          >
+            <Text style={styles.applyButtonText}>닫기</Text>
+          </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <Text style={styles.modalText}>선택된 스터디가 없습니다.</Text>
       )}
-      <TouchableOpacity
-        style={[styles.applyButton, styles.closeButton]}
-        onPress={() => setStudyModalVisible(false)}
-      >
-        <Text style={styles.applyButtonText}>닫기</Text>
-      </TouchableOpacity>
+    
     </View>
   </View>
 </Modal>
@@ -476,6 +492,58 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     marginTop: 20,
+  },
+  applyButton1:{
+    width:"40%",
+   
+    backgroundColor: '#3D4AE7', // 신청하기 버튼 배경색
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  applyButton2:{
+    width:"40%",
+    // top:"10%",
+    backgroundColor: '#3D4AE7', // 취소하기 버튼 배경색
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  applybuttonContainer: {
+    top:"55%",
+    flexDirection: 'row', // 수평으로 나란히 배치
+    justifyContent: 'space-between', // 간격 최대화
+ 
+  },
+  studyIntroduceSeparator: {
+    top:"3%",
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 5,
+  },
+  introducestudyBackground: {
+   
+    // paddingTop: 20,
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'black',
+    backgroundColor: '#f2f2f2', // 회색 배경색 추가
+  },
+  applymodalLabel:{
+    top:"5%",
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  
+  
+  introducestudytext: {
+   
+    height: '40%',
+    top: '8%',
+    fontSize: 15,
+    color: 'black',
+
   },
 
 });
