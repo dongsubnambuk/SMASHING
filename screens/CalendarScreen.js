@@ -74,7 +74,7 @@ const CalendarHome = ({navigation}) => {
       </View>
       <View style={styles.scheduleContainer}>
         <Text style={styles.scheduleContainerText}>
-          ----- This Month's Study Schedule -----
+          ----- My Study Schedule -----
         </Text>
       </View>
 
