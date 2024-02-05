@@ -7,9 +7,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import HomeScreen from '../screens/HomeScreen';
 import ChatScreen from '../screens/ChatScreen';
 import StudyScreen from '../screens/StudyScreen';
-//import NotificationScreen from '../screens/NotificationScreen';
 import MypageScreen from '../screens/MypageScreen';
-//import CalendarScreen from '../screens/CalendarScreen';
+import CalendarScreen from '../screens/CalendarScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -59,19 +58,6 @@ function BottomTabNavigationApp() {
           ),
         }}
       />
-      {/*
-      <Tab.Screen
-        name="Notification"
-        component={NotificationScreen}
-        options={{
-          title: '게시판',
-          tabBarIcon: ({ color }) => (
-            <Icon name="dashboard" color={color} size={iconSize} />
-          ),
-        }}
-      />
-      */}
-      {/*
       <Tab.Screen
         name="Calendar"
         component={CalendarScreen}
@@ -82,7 +68,6 @@ function BottomTabNavigationApp() {
           ),
         }}
       />
-      */}
       <Tab.Screen
         name="Message"
         component={MypageScreen}

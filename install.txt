@@ -24,6 +24,14 @@ npm install expo-location
 
 npm install react-native-gifted-chat
 
+<캘린더>
+
+npm install tinycolor2
+
+//npm install react-native-calendar-picker
+
+npm install react-native-datepicker
+
 ------------------------------------------------
 
 파이어베이스 파일경로 주의(firebase/compat/~)

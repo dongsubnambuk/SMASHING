@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Dimensions, BackHandler, Alert, } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { ScrollView } from 'react-native-gesture-handler';
+//CalendarScreen.js
 
-import { Ionicons, FontAwesome6, FontAwesome, AntDesign } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, Dimensions, TouchableOpacity, ScrollView, TextInput, BackHandler, Alert } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+import { Calendar } from 'react-native-calendars';
+import CalendarPicker from 'react-native-calendar-picker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { format } from 'date-fns';
+import { Entypo, FontAwesome6, AntDesign } from '@expo/vector-icons';
 
 import { firebaseConfig, userUID } from '../firebaseConfig';
 import firebase, { initializeApp } from 'firebase/compat/app';
@@ -21,32 +26,24 @@ const firestore = firebase.firestore();
 
 const Stack = createStackNavigator();
 
-const MainScreen = ({navigation}) => {
-  const [todos, setTodos] = useState({});
+const CalendarHome = ({navigation}) => {
+  const [schedules, setSchedules] = useState({});
 
   const getUsers = async () => {
     try {
-      const usersCollection = await firestore.collection('/userData/' + userUID + '/todoList').orderBy('createdAt', 'asc').get();
+      const usersCollection = await firestore.collection('/userData/' + userUID + '/calendar').orderBy('day', 'asc').get();
       // createdAt 필드를 기준으로 정렬 -> 오름차순(desc), 내림차순(asc)
       const usersData = usersCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTodos(usersData);
+      setSchedules(usersData);
     } catch (error) {
       console.error('Error fetching users:', error);
     }
   };
 
-
-  const deleteTodo = async (todoId) => {
-    try {
-      const todoRef = firestore.collection('/userData/' + userUID + '/todoList');
-      await todoRef.doc(todoId).delete();
-      alert("삭제되었습니다!");
-      getUsers();
-    } catch (error) {
-      console.error('Error deleting todo:', error);
-    }
+  const handleNewBtn = () => {
+    navigation.navigate('NewScheduleScreen');
   };
-  
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getUsers(); // MainScreen이 focus를 얻을 때마다 데이터를 다시 불러옴
@@ -55,111 +52,105 @@ const MainScreen = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
-  const handleNewBtn = () => {
-    navigation.navigate('NewTodoScreen');
-  };
-
-  const handleButtonOnline = () => {
-    navigation.navigate('MapScreen'); // 임시로 MypageScreen으로 이동
-  };
-
-  const handleButtonOffline = () => {
-    // 버튼이 눌렸을 때 수행할 동작 추가
-  };
-
-  const handleTodoDelete = (todoId) => {
-    Alert.alert("삭제", "할 일 목록을 삭제하시겠습니까?", [
-      {
-        text: "아니오",
-        onPress: () => null,
-        style: "cancel"
-      },
-      {
-        text: "예",
-        onPress: () => deleteTodo(todoId),
-      }
-    ]);
-  };
-
   return (
     <View style={styles.container}>
-      <View style={styles.subHeader}>
-        <Text style={{ fontSize: windowWidth * 0.055, fontWeight: '800' }}>
-          스터디 찾기
-        </Text>
-        <Text style={{ fontSize: windowWidth * 0.04, fontWeight: '500' }}>
-          대충 있어보이는 말
-        </Text>
-      </View>
-      <View style={styles.searchSection}>
-        <Ionicons style={styles.searchIcon} resizeMode="contain" name="search" size={windowHeight * 0.04} color="#3D4AE7" />
-        <TextInput
-          placeholder={"스터디 찾기"}
-          style={styles.input}
-        />
-      </View>
-      <View>
-        <Text style={styles.onOffTitle}>온라인 / 오프라인 스터디 리스트</Text>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={handleButtonOnline} style={styles.button}>
-          <Text style={styles.buttonText}>온라인</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleButtonOffline} style={styles.button}>
-          <Text style={styles.buttonText}>오프라인</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.todoAreaHeader}>
-        <Text style={styles.todoAreaTitle}>To Do List</Text>
+      <Calendar
+        style={styles.calendar}
+        //markedDates={markedSelectedDates}
+        theme={{
+          selectedDayBackgroundColor: '#009688',
+          arrowColor: '#009688',
+          dotColor: 'red',
+          todayTextColor: '#009688',
+        }}
+        // onDayPress={(day) => {
+        //   setSelectedDate(new Date(day.dateString));
+        // }}
+      />
+      <View style={{alignItems: 'flex-end', marginRight: windowWidth * 0.05}}>
         <TouchableOpacity onPress={handleNewBtn} style={styles.newBtn}>
-          <Text style={styles.todoAreaPlus}>+ 할 일 추가</Text>
-      </TouchableOpacity>
+            <Text style={{fontSize: 15, fontWeight: '600',}}>+ 일정 추가</Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.toDoArea}>
-        <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
-          {Object.keys(todos).map((key) => (
-            <View key={key} style={styles.toDoList}>
-              <View>
-                <Text style={styles.toDoTitle}>{todos[key].textTitle}</Text>
-                <Text style={styles.toDoDetail}>{todos[key].textDetail}</Text>
-              </View>
-              <TouchableOpacity onPress={() => handleTodoDelete(todos[key].id)}>
-                <FontAwesome name="trash-o" size={35} color="black" />
-              </TouchableOpacity>
+      <View style={styles.scheduleContainer}>
+        <Text style={styles.scheduleContainerText}>
+          ----- This Month's Study Schedule -----
+        </Text>
+      </View>
+
+      <ScrollView style={styles.scheduleListContainer} showsVerticalScrollIndicator={false}>
+        {Object.keys(schedules).map((key) => (
+          <View key={key} style={{...styles.scheduleList, backgroundColor: schedules[key].color,}}>
+            <View style={{...styles.scheduleDate, backgroundColor: "#FFFAEE",}}>
+              <Text style={{fontSize: windowWidth * 0.05, fontWeight: '600', color: schedules[key].color}}>
+                {schedules[key].month + '-' + schedules[key].day}
+              </Text>
             </View>
-          ))}
-        </ScrollView>
-      </View>
+            <View style={styles.scheduleTitle}>
+              <Text style={{fontSize: windowWidth * 0.042, fontWeight: '600'}}>
+                {schedules[key].title}
+              </Text>
+            </View>
+            <View style={styles.scheduleInfo}>
+              <Entypo name="triangle-right" size={windowWidth * 0.145} color="#FFFAEE" />
+            </View>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
-};
+}
 
-const NewTodoScreen = ({navigation}) => {
-  const [textTitle, setTextTitle] = useState("");
-  const [textDetail, setTextDetail] = useState("");
+const NewScheduleScreen = ({navigation}) => {
+  const [title, setTitle] = useState("");
+  const [detail, setDetail] = useState("");
   const [todos, setTodos] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
-  const onChangeTextTitle = (payload) => setTextTitle(payload);
-  const onChangeTextDetail = (payload) => setTextDetail(payload);
+  const onChangeTextTitle = (payload) => setTitle(payload);
+  const onChangeTextDetail = (payload) => setDetail(payload);
 
-  const addTodo = async () => {
-    if (textTitle === "" || textDetail === "") {
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    console.log(date);
+    setSelectedDate(date);
+    hideDatePicker();
+  };
+
+  const addSchedule = async () => {
+    if (title === "" || detail === "") {
       alert("제목과 세부사항을 모두 작성해주세요!");
       return;
     }
 
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth() + 1;
+    const day = selectedDate.getDate();
+
     try {
-      const todoRef = firestore.collection('/userData/' + userUID + '/todoList');
+      const todoRef = firestore.collection('/userData/' + userUID + '/calendar');
       const newTodo = {
-        textTitle,
-        textDetail,
+        selectedDate,
+        year,
+        month,
+        day,
+        title,
+        detail,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
       await todoRef.add(newTodo);
       alert("저장되었습니다!");
       // navigation.goBack() 대신 navigation.navigate로 이동하면서 데이터 전달
-      navigation.navigate('MainScreen', { refresh: true });
+      navigation.navigate('CalendarScreen', { refresh: true });
     } catch (error) {
       console.error('Error adding todo:', error);
     }
@@ -218,7 +209,7 @@ const NewTodoScreen = ({navigation}) => {
         },
         {
           text: "예",
-          onPress: () => addTodo(), 
+          onPress: () => addSchedule(), 
         }
       ],
     );
@@ -229,7 +220,7 @@ const NewTodoScreen = ({navigation}) => {
       <View style={styles.inHeader}>
         <FontAwesome6 name="calendar-plus" marginTop={5} size={windowWidth * 0.07} color="black" />
         <Text style={{fontSize: windowWidth * 0.07, fontWeight: '600'}}>
-          할 일 추가
+          일정 추가
         </Text>
         <TouchableOpacity style={styles.completeBtn} onPress={handlecompleteButton}>
           <AntDesign name="check" size={windowWidth * 0.055} color="black" />
@@ -238,16 +229,33 @@ const NewTodoScreen = ({navigation}) => {
           <AntDesign name="close" size={windowWidth * 0.055} color="black" />
         </TouchableOpacity>
       </View>
+
       <View style={{flex: 10,}}>
         <View style={styles.inputArea}>
+          <View style={{ flex: 1, marginTop: windowHeight * 0.03, justifyContent: 'center', alignItems: 'center',}}>
+            <TouchableOpacity style={{backgroundColor: 'white' , borderRadius: 15, paddingHorizontal: 15,}} onPress={showDatePicker}>
+              <Text style={{fontWeight: '600'}}>{selectedDate ? selectedDate.toLocaleDateString() : '이곳을 눌러 날짜와 시간을 정하세요'}</Text>
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isDatePickerVisible}
+              mode="datetime"
+              onConfirm={handleDateConfirm}
+              onCancel={hideDatePicker}
+            />
+          </View>
+
+          {/* {selectedDate && (
+            <Text>선택한 날짜: {selectedDate.toLocaleDateString()}</Text>
+          )} */}
+
           <TextInput 
           onChangeText={onChangeTextTitle} 
-          value={textTitle}
+          value={title}
           placeholder={"제목"} 
           style={styles.inputTitle}/>
           <TextInput 
           onChangeText={onChangeTextDetail} 
-          value={textDetail}
+          value={detail}
           placeholder={"세부사항"} 
           style={styles.inputDetail} 
           multiline ={true}/>
@@ -257,14 +265,14 @@ const NewTodoScreen = ({navigation}) => {
   );
 };
 
-const HomeScreen = () => {
+const CalendarScreen = () => {
   return (
     <Stack.Navigator //options={{ headerShown: false }} // 기본 헤더 숨기기
     screenOptions={{
     headerMode: 'none', // 상단의 뒤로가기 버튼 및 헤더 삭제
-    }}initialRouteName="MainScreen">
-      <Stack.Screen name="MainScreen" component={MainScreen} />
-      <Stack.Screen name="NewTodoScreen" component={NewTodoScreen} />
+    }} initialRouteName="CalendarHome">
+      <Stack.Screen name="CalendarHome" component={CalendarHome} />
+      <Stack.Screen name="NewScheduleScreen" component={NewScheduleScreen} />
     </Stack.Navigator>
   );
 }
@@ -273,70 +281,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  subHeader: {
-    paddingBottom: windowHeight * 0.02,
-    paddingHorizontal: windowWidth * 0.05,
-  },
-  searchSection: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    backgroundColor: '#E6E6E6',
-    borderRadius: 10,
-    marginBottom: windowHeight * 0.02,
+  calendar: {
     marginHorizontal: windowWidth * 0.05,
-    height: windowHeight * 0.05,
+    marginVertical: windowHeight * 0.015,
+    width: windowWidth * 0.9,
+    paddingVertical: windowHeight * 0.012,
+    borderRadius: 15,
+    elevation: 10, // 그림자
   },
-  searchIcon: {
-    padding: windowHeight * 0.005,
-  },
-  input: {
-    flex: 1,
+  newBtn: {
+    width: 100,
     borderRadius: 10,
-    backgroundColor: '#E6E6E6',
-    color: '#424242',
+    paddingVertical: windowHeight * 0.012, 
+    paddingHorizontal: windowWidth * 0.03, 
+    borderRadius: 12, 
+    backgroundColor: '#CEF6CE',
   },
-  onOffTitle: {
-    fontSize: windowWidth * 0.035,
-    color: '#3D4AE7',
-    fontWeight: '600',
-    marginLeft: windowWidth * 0.06,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    marginVertical: windowHeight * 0.01,
-    marginHorizontal: windowWidth * 0.045,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: windowHeight * 0.015,
-    marginHorizontal: windowWidth * 0.004,
-    backgroundColor: "#3D4AE7",
-    borderRadius: 10,
+  scheduleContainer: {
     alignItems: 'center',
+    paddingVertical: windowHeight * 0.01,
+    marginHorizontal: windowWidth * 0.05,
+    borderRadius: 10,
   },
-  buttonText: {
-    color: 'white',
-    fontSize: windowWidth * 0.05,
-    fontWeight: '700',
-  },
-  todoAreaHeader: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between',
-    marginHorizontal: windowWidth * 0.06,
-    marginTop: windowHeight * 0.01,
-    marginBottom: windowHeight * 0.008,
-  },
-  todoAreaTitle: {
-    fontSize: windowWidth * 0.05,
+  scheduleContainerText: {
     color: '#3D4AE7',
-    fontWeight: '700',
-  },
-  todoAreaPlus: {
-    fontSize: 15, 
+    fontSize: 17,
     fontWeight: '600',
   },
-  toDoArea: {
-    flex: 1,
+  scheduleListContainer: {
     backgroundColor: '#E6E0F8',
     marginHorizontal: windowWidth * 0.05,
     marginBottom: windowWidth * 0.05,
@@ -344,24 +316,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: windowWidth * 0.03,
     borderRadius: 20,
   },
-  toDoListContainer: {
-    borderRadius: 20,
-  },
-  toDoList: {
-    paddingVertical: windowHeight * 0.012,
-    paddingHorizontal: windowWidth * 0.04,
-    marginBottom: windowHeight * 0.015,
-    borderRadius: 10,
-    backgroundColor: 'white',
+  scheduleList: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: windowHeight * 0.015,
+    paddingHorizontal: windowWidth * 0.02,
+    borderRadius: 12,
+    alignItems: 'center',
   },
-  toDoTitle: {
-    fontSize: windowWidth * 0.04,
-    fontWeight: '600',
+  scheduleDate: {
+    paddingVertical: windowHeight * 0.01,
+    width: windowWidth * 0.15,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  toDoDetail: {
-    fontSize: windowWidth * 0.031,
+  scheduleTitle: {
+    paddingVertical: windowHeight * 0.012,
+    width: windowWidth * 0.5,
+    backgroundColor: '#FFFAEE',
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  scheduleInfo: {
+    marginHorizontal: windowWidth * -0.035, // 아이콘 배경이 커서 조절
   },
   //------------아래는 NewTodoScreen의 스타일
   inHeader: {
@@ -397,7 +376,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   inputTitle: {
-    flex: 1,
+    flex: 5,
     backgroundColor: 'white',
     marginTop: windowHeight * 0.03,
     marginHorizontal: windowWidth * 0.05,
@@ -407,7 +386,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   inputDetail: {
-    flex: 5,
+    flex: 15,
     backgroundColor: 'white',
     marginVertical: windowHeight * 0.03,
     marginHorizontal: windowWidth * 0.05,
@@ -418,4 +397,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default CalendarScreen;

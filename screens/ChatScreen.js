@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { GiftedChat, Message } from 'react-native-gifted-chat';
 
-import { firebaseConfig } from '../firebaseConfig';
+import { firebaseConfig, chattingRoom, userUID, userName } from '../firebaseConfig';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 
@@ -13,10 +13,6 @@ const windowHeight = Dimensions.get('window').height;
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-
-const chattingRoom = '1'; // 채팅방 ID
-const userUID = '910'; // 사용자 UID
-const userName = 'son'; // 사용자 이름
 
 // Firestore 인스턴스 가져오기
 const firestore = firebase.firestore();

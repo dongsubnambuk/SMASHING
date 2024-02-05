@@ -1,5 +1,5 @@
 // NewScheduleScreen.js
-/*
+
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, BackHandler, Alert, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -155,4 +155,3 @@ const styles = StyleSheet.create({
 });
 
 export default NewScheduleScreen;
-*/

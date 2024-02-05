@@ -13,8 +13,7 @@ import { Entypo } from '@expo/vector-icons';
 import MypageScreen from './screens/MypageScreen';
 import MapScreen from './screens/MapScreen';
 import ChatScreen from './screens/ChatScreen';
-//import CalendarScreen from './screens/CalendarScreen';
-//import NewScheduleScreen from './screens/NewScheduleScreen';
+import CalendarScreen from './screens/CalendarScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -37,11 +36,6 @@ const App = ({ navigation }) => {
         }}>
         <SafeAreaView style={styles.header}>
           <Image style={styles.headerImage} resizeMode="contain" source={require('./assets/header.png')} />
-          {/*
-          <TouchableOpacity onPress={handlePlusButton} style={styles.plusButton}>
-            <Entypo name="plus" size={windowWidth * 0.07} color="black" />
-          </TouchableOpacity>
-          */}
         </SafeAreaView>
         <Stack.Navigator //options={{ headerShown: false }} // 기본 헤더 숨기기
           screenOptions={{
@@ -63,18 +57,10 @@ const App = ({ navigation }) => {
             name="Chat"
             component={ChatScreen} 
           />
-          {/*
-          <Stack.Screen
-            name="NewScheduleScreen"
-            component={NewScheduleScreen}
-          />
-          */}
-          {/*
           <Stack.Screen
             name="CalendarScreen"
             component={CalendarScreen}
           />
-          */}
         </Stack.Navigator>
       </NavigationContainer>
   );
