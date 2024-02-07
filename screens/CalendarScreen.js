@@ -8,7 +8,7 @@ import { Calendar } from 'react-native-calendars';
 import CalendarPicker from 'react-native-calendar-picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
-import { Entypo, FontAwesome6, AntDesign } from '@expo/vector-icons';
+import { Feather, FontAwesome6, AntDesign } from '@expo/vector-icons';
 import { ColorPicker } from 'react-native-color-picker';
 
 import { firebaseConfig, userUID } from '../firebaseConfig';
@@ -136,7 +136,7 @@ const CalendarHome = ({navigation}) => {
               </Text>
             </View>
             <View style={styles.scheduleInfo}>
-              <Entypo name="triangle-right" onPress={() => scheduleInfoBtn(schedules[key])} size={windowWidth * 0.145} color="#FFFAEE" />
+              <Feather name="info" onPress={() => scheduleInfoBtn(schedules[key])} size={windowWidth * 0.08} color="#FFFAEE" />
             </View>
           </View>
         ))}
@@ -319,7 +319,7 @@ const NewScheduleScreen = ({navigation}) => {
           <TextInput 
           onChangeText={onChangeTextTitle} 
           value={title}
-          placeholder={"제목"} 
+          placeholder={"제목(20자 이내 권장)"} 
           style={styles.inputTitle}/>
           <TextInput 
           onChangeText={onChangeTextDetail} 
@@ -409,6 +409,7 @@ const styles = StyleSheet.create({
   },
   scheduleTitle: {
     paddingVertical: windowHeight * 0.012,
+    marginVertical: windowHeight * 0.01,
     width: windowWidth * 0.5,
     backgroundColor: '#FFFAEE',
     borderRadius: 13,
@@ -416,7 +417,9 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   scheduleInfo: {
-    marginHorizontal: windowWidth * -0.035, // 아이콘 배경이 커서 조절
+    marginHorizontal: windowWidth * -0.02, // 아이콘 배경이 커서 조절
+    paddingVertical: windowHeight * 0.015,
+    paddingRight: 12,
   },
   //------------아래는 NewTodoScreen의 스타일
   inHeader: {

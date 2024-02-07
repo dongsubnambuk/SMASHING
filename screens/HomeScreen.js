@@ -119,7 +119,7 @@ const MainScreen = ({navigation}) => {
         <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
           {Object.keys(todos).map((key) => (
             <View key={key} style={styles.toDoList}>
-              <View>
+              <View style={{width: windowWidth * 0.65}}>
                 <Text style={styles.toDoTitle}>{todos[key].textTitle}</Text>
                 <Text style={styles.toDoDetail}>{todos[key].textDetail}</Text>
               </View>
@@ -243,7 +243,7 @@ const NewTodoScreen = ({navigation}) => {
           <TextInput 
           onChangeText={onChangeTextTitle} 
           value={textTitle}
-          placeholder={"제목"} 
+          placeholder={"제목(30자 이내 권장)"} 
           style={styles.inputTitle}/>
           <TextInput 
           onChangeText={onChangeTextDetail} 
