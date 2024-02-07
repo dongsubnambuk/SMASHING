@@ -1,7 +1,7 @@
 //CalendarScreen.js
 
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Dimensions, TouchableOpacity, ScrollView, TextInput, BackHandler, Alert } from 'react-native';
+import { StyleSheet, View, Text, Dimensions, TouchableOpacity, ScrollView, TextInput, BackHandler, Alert, Button } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import { Calendar } from 'react-native-calendars';
@@ -9,6 +9,7 @@ import CalendarPicker from 'react-native-calendar-picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { format } from 'date-fns';
 import { Entypo, FontAwesome6, AntDesign } from '@expo/vector-icons';
+import { ColorPicker } from 'react-native-color-picker';
 
 import { firebaseConfig, userUID } from '../firebaseConfig';
 import firebase, { initializeApp } from 'firebase/compat/app';
@@ -44,6 +45,45 @@ const CalendarHome = ({navigation}) => {
     navigation.navigate('NewScheduleScreen');
   };
 
+  const deleteSchedule = async (scheduleId) => {
+    try {
+      const scheduleRef = firestore.collection('/userData/' + userUID + '/calendar'); // 컬렉션 경로 수정
+      await scheduleRef.doc(scheduleId).delete(); // 문서 경로 수정
+      alert("삭제되었습니다!");
+      getUsers(); // 데이터 다시 불러오는 함수 호출
+    } catch (error) {
+      console.error('Error deleting schedule:', error);
+    }
+  };
+  
+  const handleScheduleDelete = (scheduleId) => {
+    Alert.alert("삭제", "정말 해당 일정을 삭제하시겠습니까?", [
+      {
+        text: "아니오",
+        onPress: () => null,
+        style: "cancel"
+      },
+      {
+        text: "예",
+        onPress: () => deleteSchedule(scheduleId),
+      }
+    ]);
+  };
+
+  const scheduleInfoBtn = (schedule) => {
+    Alert.alert(schedule.year + '년 ' + schedule.month + '월 ' + schedule.day + '일', '제목 : ' + schedule.title + '\n' + '내용 : ' + schedule.detail+ '\n\n' + '해당 일정을 삭제하려면 아래의 \'삭제\' 버튼을 눌러주세요 ', [
+      {
+        text: "닫기",
+        onPress: () => null,
+        style: "cancel"
+      },
+      {
+        text: "삭제",
+        onPress: () => handleScheduleDelete(schedule.id),
+      }
+    ]);
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getUsers(); // MainScreen이 focus를 얻을 때마다 데이터를 다시 불러옴
@@ -52,37 +92,41 @@ const CalendarHome = ({navigation}) => {
     return unsubscribe;
   }, [navigation]);
 
+  const generateMarkedDates = (schedules) => {
+    const markedDates = {};
+    Object.values(schedules).forEach(schedule => {
+      const dateString = `${schedule.year}-${schedule.month < 10 ? '0' + schedule.month : schedule.month}-${schedule.day < 10 ? '0' + schedule.day : schedule.day}`;
+      markedDates[dateString] = { marked: true, dotColor: schedule.calendarColor };
+    });
+    return markedDates;
+  };
+  
+
   return (
     <View style={styles.container}>
       <Calendar
         style={styles.calendar}
-        //markedDates={markedSelectedDates}
+        markedDates={generateMarkedDates(schedules)}
         theme={{
-          selectedDayBackgroundColor: '#009688',
+          todayBackgroundColor: '#D8D8D8',
           arrowColor: '#009688',
-          dotColor: 'red',
-          todayTextColor: '#009688',
+          todayTextColor: 'white',
         }}
-        // onDayPress={(day) => {
-        //   setSelectedDate(new Date(day.dateString));
-        // }}
       />
-      <View style={{alignItems: 'flex-end', marginRight: windowWidth * 0.05}}>
+      <View style={styles.scheduleContainerTitle}>
+        <Text style={styles.scheduleContainerText}>
+          ----- My Study Schedule -----
+        </Text>
         <TouchableOpacity onPress={handleNewBtn} style={styles.newBtn}>
             <Text style={{fontSize: 15, fontWeight: '600',}}>+ 일정 추가</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.scheduleContainer}>
-        <Text style={styles.scheduleContainerText}>
-          ----- My Study Schedule -----
-        </Text>
-      </View>
 
       <ScrollView style={styles.scheduleListContainer} showsVerticalScrollIndicator={false}>
         {Object.keys(schedules).map((key) => (
-          <View key={key} style={{...styles.scheduleList, backgroundColor: schedules[key].color,}}>
+          <View key={key} style={{...styles.scheduleList, backgroundColor: schedules[key].calendarColor,}}>
             <View style={{...styles.scheduleDate, backgroundColor: "#FFFAEE",}}>
-              <Text style={{fontSize: windowWidth * 0.05, fontWeight: '600', color: schedules[key].color}}>
+              <Text style={{fontSize: windowWidth * 0.05, fontWeight: '600', color: schedules[key].calendarColor}}>
                 {schedules[key].month + '-' + schedules[key].day}
               </Text>
             </View>
@@ -92,7 +136,7 @@ const CalendarHome = ({navigation}) => {
               </Text>
             </View>
             <View style={styles.scheduleInfo}>
-              <Entypo name="triangle-right" size={windowWidth * 0.145} color="#FFFAEE" />
+              <Entypo name="triangle-right" onPress={() => scheduleInfoBtn(schedules[key])} size={windowWidth * 0.145} color="#FFFAEE" />
             </View>
           </View>
         ))}
@@ -107,6 +151,16 @@ const NewScheduleScreen = ({navigation}) => {
   const [todos, setTodos] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('black'); // 초기 색상 설정
+  
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+  };
+
+  const handleSaveColor = () => {
+    alert(selectedColor + " 색상을 저장하였습니다.")
+    
+  };
 
   const onChangeTextTitle = (payload) => setTitle(payload);
   const onChangeTextDetail = (payload) => setDetail(payload);
@@ -120,14 +174,13 @@ const NewScheduleScreen = ({navigation}) => {
   };
 
   const handleDateConfirm = (date) => {
-    console.log(date);
     setSelectedDate(date);
     hideDatePicker();
   };
 
   const addSchedule = async () => {
-    if (title === "" || detail === "") {
-      alert("제목과 세부사항을 모두 작성해주세요!");
+    if (!selectedDate || title === '' || detail === '') {
+      alert('날짜, 제목, 세부사항을 모두 작성해주세요!');
       return;
     }
 
@@ -138,6 +191,7 @@ const NewScheduleScreen = ({navigation}) => {
     try {
       const todoRef = firestore.collection('/userData/' + userUID + '/calendar');
       const newTodo = {
+        calendarColor: selectedColor,
         selectedDate,
         year,
         month,
@@ -150,7 +204,7 @@ const NewScheduleScreen = ({navigation}) => {
       await todoRef.add(newTodo);
       alert("저장되었습니다!");
       // navigation.goBack() 대신 navigation.navigate로 이동하면서 데이터 전달
-      navigation.navigate('CalendarScreen', { refresh: true });
+      navigation.goBack();
     } catch (error) {
       console.error('Error adding todo:', error);
     }
@@ -201,7 +255,7 @@ const NewScheduleScreen = ({navigation}) => {
   const handlecompleteButton = () => { // 체크 버튼을 눌렀을 때
     Alert.alert(
       '작성 완료하기',
-      '일정 작성을 완료하시겠습니까?',
+      '일정 작성을 완료하시겠습니까?' +'\n' + '(+ 색상 저장을 누르셨나요? \n 기본 색상은 검은색 입니다.)',
       [
         {
           text: "아니오",
@@ -232,16 +286,30 @@ const NewScheduleScreen = ({navigation}) => {
 
       <View style={{flex: 10,}}>
         <View style={styles.inputArea}>
-          <View style={{ flex: 1, marginTop: windowHeight * 0.03, justifyContent: 'center', alignItems: 'center',}}>
-            <TouchableOpacity style={{backgroundColor: 'white' , borderRadius: 15, paddingHorizontal: 15,}} onPress={showDatePicker}>
-              <Text style={{fontWeight: '600'}}>{selectedDate ? selectedDate.toLocaleDateString() : '이곳을 눌러 날짜와 시간을 정하세요'}</Text>
-            </TouchableOpacity>
-            <DateTimePickerModal
-              isVisible={isDatePickerVisible}
-              mode="datetime"
-              onConfirm={handleDateConfirm}
-              onCancel={hideDatePicker}
+          <View style={{flex: 1, flexDirection: 'row', marginHorizontal: windowWidth * 0.05, marginTop: windowHeight * 0.03, alignItems: 'center'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center',}}>
+              <TouchableOpacity style={{backgroundColor: 'white' , borderRadius: 15, paddingHorizontal: 12, paddingVertical: 10,}} onPress={showDatePicker}>
+                <Text style={{fontWeight: '600'}}>{selectedDate ? selectedDate.toLocaleDateString() : '이곳을 눌러 날짜를 정하세요'}</Text>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={handleDateConfirm}
+                onCancel={hideDatePicker}
+              />
+            </View>
+            <ColorPicker
+              onColorSelected={handleColorChange}
+              style={{ flex: 1 }}
+              hideSliders={true} // 옵션: 슬라이더 숨기기
             />
+            <View style={{flex: 1,}}>
+              <Text style={{fontSize: 11, fontWeight: '600'}}>가운데 원을 클릭하여 색상을 선택 후 아래의 '색상 저장'을 눌러주세요</Text>
+              <TouchableOpacity onPress={handleSaveColor} style={styles.saveColorBtn}>
+                <Text style={{ fontSize: 14, fontWeight: '600' }}>색상 저장</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
 
           {/* {selectedDate && (
@@ -289,20 +357,28 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     elevation: 10, // 그림자
   },
-  newBtn: {
-    width: 100,
-    borderRadius: 10,
-    paddingVertical: windowHeight * 0.012, 
-    paddingHorizontal: windowWidth * 0.03, 
-    borderRadius: 12, 
-    backgroundColor: '#CEF6CE',
+  scheduleContainerTitle: {
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 10, 
+    marginLeft: windowWidth * 0.09, 
+    marginRight: windowWidth * 0.08, 
+    alignItems: 'center'
   },
-  scheduleContainer: {
-    alignItems: 'center',
-    paddingVertical: windowHeight * 0.01,
-    marginHorizontal: windowWidth * 0.05,
-    borderRadius: 10,
-  },
+  // newBtn: {
+  //   alignItems: 'center',
+  //   width: 90,
+  //   borderRadius: 10,
+  //   paddingVertical: windowHeight * 0.012, 
+  //   borderRadius: 12, 
+  //   backgroundColor: '#CEF6CE',
+  // },
+  // scheduleContainer: {
+  //   alignItems: 'center',
+  //   paddingVertical: windowHeight * 0.01,
+  //   marginHorizontal: windowWidth * 0.05,
+  //   borderRadius: 10,
+  // },
   scheduleContainerText: {
     color: '#3D4AE7',
     fontSize: 17,
@@ -375,8 +451,16 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 10,
   },
+  saveColorBtn: {
+    paddingVertical: 7,
+    backgroundColor: '#007AFF', // 버튼의 배경색
+    borderRadius: 10, // 버튼의 모서리 둥글기
+    alignItems: 'center', // 버튼 내부 요소를 가운데 정렬
+    justifyContent: 'center',
+    marginTop: 8,
+  },
   inputTitle: {
-    flex: 5,
+    flex: 1,
     backgroundColor: 'white',
     marginTop: windowHeight * 0.03,
     marginHorizontal: windowWidth * 0.05,
@@ -386,7 +470,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   inputDetail: {
-    flex: 15,
+    flex: 3,
     backgroundColor: 'white',
     marginVertical: windowHeight * 0.03,
     marginHorizontal: windowWidth * 0.05,

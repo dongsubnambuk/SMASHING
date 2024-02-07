@@ -28,9 +28,10 @@ npm install react-native-gifted-chat
 
 npm install tinycolor2
 
-//npm install react-native-calendar-picker
-
 npm install react-native-datepicker
+
+npm install react-native-color-picker
+
 
 ------------------------------------------------
 
