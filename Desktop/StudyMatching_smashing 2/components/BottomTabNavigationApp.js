@@ -7,7 +7,7 @@ import Studymain from './Studymain';
 import Studyserachbtn from './Studyserachbtn';
 import Studyplusbtn from './Studyplusbtn';
 import HomeScreen from './HomeScreen';
-import Calendar from './Calendar';
+import CalendarScreen from './CalendarScreen';
 import StudyList from './StudyList';
 
 
@@ -24,14 +24,6 @@ function NotificationScreen({ navigation }) {
       {/* 게시판 화면 내용 */}
       <TouchableOpacity onPress={() => navigation.navigate('Details')}>
       </TouchableOpacity>
-    </View>
-  );
-}
-
-function CalendarScreen({ navigation }) {
-  return (
-    <View>
-     <Calendar/>
     </View>
   );
 }

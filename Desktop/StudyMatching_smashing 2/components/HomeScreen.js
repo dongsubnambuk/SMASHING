@@ -1,15 +1,16 @@
 // HomeScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Modal, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, Modal, Dimensions, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons, FontAwesome6, FontAwesome, AntDesign } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5, FontAwesome, AntDesign } from '@expo/vector-icons';
 import { ScrollView } from 'react-native-gesture-handler';
 import { initializeApp } from 'firebase/app';
 import Studyplusbtn from './Studyplusbtn';
 import { createStackNavigator } from '@react-navigation/stack';
-import { firebaseConfig, userUID } from '../firebaseConfig';
+import { firebaseConfig } from '../firebaseConfig';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore'; 
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -22,16 +23,44 @@ if (!firebase.apps.length) {
 
 // Firestore 인스턴스 가져오기
 const firestore = firebase.firestore();
+const auth = getAuth();
 
 const Stack = createStackNavigator();
 
-
 const MainScreen = ({navigation}) => {
   const [todos, setTodos] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    if (currentUser) { // 처음 홈화면 입장 시
+      getUsers();
+    } 
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (currentUser) {
+        getUsers();
+      } // MainScreen이 focus를 얻을 때마다 데이터를 다시 불러옴
+    });
+  
+    const getUID = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+  
+    // 컴포넌트가 언마운트될 때 감지 중지
+    return () => {
+      unsubscribe();
+      getUID();
+    };
+  }, [navigation, currentUser]);
+  
 
   const getUsers = async () => {
     try {
-      const usersCollection = await firestore.collection('/userData/' + userUID + '/todoList').orderBy('createdAt', 'asc').get();
+      const usersCollection = await firestore.collection('/userData/' + currentUser.uid+ '/todoList').orderBy('createdAt', 'asc').get();
       // createdAt 필드를 기준으로 정렬 -> 오름차순(desc), 내림차순(asc)
       const usersData = usersCollection.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setTodos(usersData);
@@ -40,10 +69,9 @@ const MainScreen = ({navigation}) => {
     }
   };
 
-
   const deleteTodo = async (todoId) => {
     try {
-      const todoRef = firestore.collection('/userData/' + userUID + '/todoList');
+      const todoRef = firestore.collection('/userData/' + currentUser.uid + '/todoList');
       await todoRef.doc(todoId).delete();
       alert("삭제되었습니다!");
       getUsers();
@@ -51,14 +79,6 @@ const MainScreen = ({navigation}) => {
       console.error('Error deleting todo:', error);
     }
   };
-  
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      getUsers(); // MainScreen이 focus를 얻을 때마다 데이터를 다시 불러옴
-    });
-
-    return unsubscribe;
-  }, [navigation]);
 
   const handleNewBtn = () => {
     navigation.navigate('NewTodoScreen');
@@ -68,8 +88,6 @@ const MainScreen = ({navigation}) => {
     // 권한 확인, 위치 관련 코드 삭제
     navigation.navigate('OnlineStudyScreen');
   };
-
-
 
   const handleButtonOffline = () => {
     navigation.navigate('OfflineStudyScreen');
@@ -123,6 +141,12 @@ const MainScreen = ({navigation}) => {
           <Text style={styles.todoAreaPlus}>+ 할 일 추가</Text>
       </TouchableOpacity>
       </View>
+
+      {todos.length === 0 ? ( // todos 배열이 비어있는지 확인
+      <View style={{...styles.toDoArea, alignItems: 'center', justifyContent: 'center'}}>
+        <Text style={{fontSize: 18,}}>할 일을 추가해 주세요</Text>
+      </View>
+    ) : (
       <View style={styles.toDoArea}>
         <ScrollView style={styles.toDoListContainer} showsVerticalScrollIndicator={false}>
           {Object.keys(todos).map((key) => (
@@ -138,6 +162,7 @@ const MainScreen = ({navigation}) => {
           ))}
         </ScrollView>
       </View>
+      )}
     </View>
   );
 };
@@ -145,7 +170,20 @@ const MainScreen = ({navigation}) => {
 const NewTodoScreen = ({navigation}) => {
   const [textTitle, setTextTitle] = useState("");
   const [textDetail, setTextDetail] = useState("");
-  const [todos, setTodos] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => { // 유저UID 가져오기
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+
+    // 컴포넌트가 언마운트될 때 감지 중지
+    return () => unsubscribe();
+  }, []);
 
   const onChangeTextTitle = (payload) => setTextTitle(payload);
   const onChangeTextDetail = (payload) => setTextDetail(payload);
@@ -157,7 +195,7 @@ const NewTodoScreen = ({navigation}) => {
     }
 
     try {
-      const todoRef = firestore.collection('/userData/' + userUID + '/todoList');
+      const todoRef = firestore.collection('/userData/' + currentUser.uid + '/todoList');
       const newTodo = {
         textTitle,
         textDetail,
@@ -166,8 +204,7 @@ const NewTodoScreen = ({navigation}) => {
 
       await todoRef.add(newTodo);
       alert("저장되었습니다!");
-      // navigation.goBack() 대신 navigation.navigate로 이동하면서 데이터 전달
-      navigation.navigate('MainScreen', { refresh: true });
+      navigation.goBack();
     } catch (error) {
       console.error('Error adding todo:', error);
     }
@@ -235,7 +272,7 @@ const NewTodoScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.inHeader}>
-        <FontAwesome6 name="calendar-plus" marginTop={5} size={windowWidth * 0.07} color="black" />
+        <FontAwesome5 name="calendar-plus" marginTop={5} size={windowWidth * 0.07} color="black" />
         <Text style={{fontSize: windowWidth * 0.07, fontWeight: '600'}}>
           할 일 추가
         </Text>
@@ -327,14 +364,6 @@ const styles = StyleSheet.create({
     fontSize: windowWidth * 0.05,
     fontWeight: '700',
   },
-  sectionTitle: {
-    fontSize: windowWidth * 0.05,
-    color: '#3D4AE7',
-    fontWeight: '700',
-    marginLeft: windowWidth * 0.06,
-    marginTop: windowHeight * 0.01,
-    marginBottom: windowHeight * 0.008,
-  },
   todoAreaHeader: {
     flexDirection: 'row', 
     justifyContent: 'space-between',
@@ -369,6 +398,8 @@ const styles = StyleSheet.create({
     marginBottom: windowHeight * 0.015,
     borderRadius: 10,
     backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   toDoTitle: {
     fontSize: windowWidth * 0.04,

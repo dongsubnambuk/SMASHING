@@ -12,7 +12,7 @@ import StudyDetail from './components/StudyDetail';
 import 'firebase/storage';
 import Studymain from './components/Studymain';
 import HomeScreen from './components/HomeScreen';
-import Calendar from './components/Calendar';
+import CalendarScreen from './components/CalendarScreen';
 import OfflineStudyScreen from './components/OfflineStudyScreen';
 import OnlineStudyScreen from './components/OnlineStudyScreen';
 import LoginPage from './components/LoginPage';
@@ -206,8 +206,8 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Calendar"
-          component={Calendar}
+          name="CalendarScreen"
+          component={CalendarScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
