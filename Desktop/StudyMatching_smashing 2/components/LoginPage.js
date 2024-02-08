@@ -13,7 +13,7 @@ const auth = getAuth(app);
 const { width, height } = Dimensions.get('window');
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState(''); // user_id 입력을 위한 상태 추가
   const [password, setPassword] = useState('');
   const navigation = useNavigation();
   const [isLoggedIn, setIsLoggedIn] = useState(auth.currentUser);
@@ -34,7 +34,8 @@ const LoginPage = () => {
  
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // 수정된 부분: signInWithEmailAndPassword 함수에 user_id와 비밀번호를 전달합니다.
+      await signInWithEmailAndPassword(auth, userId, password);
       console.log('로그인 성공');
     } catch (error) {
       console.error('로그인 실패:', error.message);
@@ -48,19 +49,14 @@ const LoginPage = () => {
   };
 
   const navigateToFindPassword = () => {
-    console.log('이동: FindPasswordPage');
+    if (navigation) {
+      navigation.navigate('Passwordserchauth');
+    }
   };
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
-
-  // 로그인 성공 시 BottomTabNavigationApp으로 이동
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     navigation.navigate('BottomTabNavigationApp');
-  //   }
-  // }, [isLoggedIn, navigation]);
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
@@ -76,13 +72,14 @@ const LoginPage = () => {
       
         <Text style={styles.login}>로그인</Text>
        
-        <Text style={styles.account}>계정</Text>
+        {/* 수정된 부분: user_id 입력 필드 */}
+        <Text style={styles.account}>아이디</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={{ flex: 1, padding: 5, color: '#000' }}
-            placeholder="이메일을 입력하세요"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
+            placeholder="아이디를 입력하세요"
+            value={userId}
+            onChangeText={(text) => setUserId(text)}
           />
         </View>
         <View style={styles.inputContainer}>

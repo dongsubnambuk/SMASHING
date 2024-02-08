@@ -26,6 +26,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { initializeAuth, getReactNativePersistence, signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
+import PasswordRecoveryScreen from './components/PasswordRecoveryScreen';
+import Passwordserchauth from './components/Passwordserchauth';
+
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -132,6 +135,16 @@ const App = () => {
             <Stack.Screen
               name="SerchId"
               component={SerchId}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="PasswordRecoveryScreen"
+              component={PasswordRecoveryScreen}
+              options={{ headerShown: false }}
+            />
+                <Stack.Screen
+              name="Passwordserchauth"
+              component={Passwordserchauth}
               options={{ headerShown: false }}
             />
             <Stack.Screen

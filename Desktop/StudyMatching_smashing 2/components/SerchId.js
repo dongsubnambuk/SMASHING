@@ -1,36 +1,53 @@
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { firebaseConfig } from '../firebaseConfig'; 
+import { initializeApp } from 'firebase/app';
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const SerchId = () => {
   const navigation = useNavigation();
+  const [email, setEmail] = useState('');
+
+  const handleSendEmail = async () => {
+    try {
+      // Firebase Auth SDK를 사용하여 이메일로 사용자에게 인증 이메일을 보냅니다.
+      await auth.sendPasswordResetEmail(email);
+      Alert.alert('이메일 전송 성공', '이메일로 인증번호를 보냈습니다.');
+    } catch (error) {
+      console.error('이메일 전송 실패:', error);
+      Alert.alert('이메일 전송 실패', '이메일 전송 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
-    
     <View style={styles.container}>
-            <View style={styles.header}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={35} color="#3D4AE7" />
         </TouchableOpacity>
-       <Text style={styles.smasing}>SMASHING</Text>
+        <Text style={styles.smasing}>SMASHING</Text>
       </View>
       
-      <Text style={styles.text}>
-        아이디 찾기
-      </Text>
+      <Text style={styles.text}>아이디 찾기</Text>
       
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.inputText}
           placeholder="이메일을 입력하세요"
-          keyboardType="email"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
         />
-        <TouchableOpacity style={styles.button1}>
-          <Text style={styles.text1}>
-           이메일 전송
-          </Text>
+        <TouchableOpacity style={styles.button1} onPress={handleSendEmail}>
+          <Text style={styles.text1}>이메일 전송</Text>
         </TouchableOpacity>
       </View>
+      
       
       <View style={styles.separator} />
       

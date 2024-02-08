@@ -293,8 +293,8 @@ const OfflineStudyScreen = ({ navigation }) => {
           </Text>
 
           <Text style={styles.introducestudytext}>
-  {selectedStudy.studyIntroduce || '없음'}
-</Text>
+            {selectedStudy.studyIntroduce || '없음'}
+          </Text>
           <View style={styles.applybuttonContainer}>
           <TouchableOpacity
             style={[styles.applyButton1, styles.applyNowButton]}
