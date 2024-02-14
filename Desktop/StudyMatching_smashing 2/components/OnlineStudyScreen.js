@@ -27,7 +27,7 @@ const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
 const auth = getAuth();
 
-const OfflineStudyScreen = ({ navigation }) => {
+const OnlineStudyScreen = ({ navigation }) => {
   const [OnlineStudyList, setOnlineStudyList] = useState([]);
   const [location, setLocation] = useState(null);
   const [isLocationModalVisible, setLocationModalVisible] = useState(false);
@@ -88,6 +88,8 @@ const OfflineStudyScreen = ({ navigation }) => {
     setSelectedStudy(study); // 주석 처리
     setStudyModalVisible(true);
   };
+
+ 
  
 
 
@@ -548,4 +550,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default OfflineStudyScreen;
+export default OnlineStudyScreen;

@@ -16,7 +16,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, addDoc, collection,updateDoc,doc,setDoc } from 'firebase/firestore';
+import { getFirestore, addDoc, collection,updateDoc,doc,setDoc,query ,where,getDocs,serverTimestamp} from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { firebaseConfig } from '../firebaseConfig';
 import * as Location from 'expo-location';
@@ -225,7 +225,7 @@ const Studyplus = () => {
       // studyLocations에서 얻은 위치 정보의 ID를 활용하여 studies 컬렉션에 저장
       const studyLocationId = studyLocationRef.id;
       const initialParticipants = 0;
-
+  
       const studyRef = doc(firestore, 'studies', studyId);
       await setDoc(studyRef, {
         studyId,
@@ -245,14 +245,60 @@ const Studyplus = () => {
         totalParticipants: selectedCategory || selectedPeopleValue,
         studyIntroduce,
       });
+  
+      // 생성된 스터디에 대해 신청 처리
+      const userDocRef = doc(firestore, 'applystudy', currentUser.uid);
 
-      alert(`스터디 생성이 완료되었습니다.`);
+      // 사용자가 이미 해당 스터디에 신청했는지 확인하는 쿼리
+      const userAppliedStudiesQuery = query(
+          collection(userDocRef, isOnline ? 'onlineStudies' : 'offlineStudies'), // 온라인 또는 오프라인 스터디 컬렉션
+          where('studyId', '==', studyId)
+      );
+      
+      const userAppliedStudiesSnapshot = await getDocs(userAppliedStudiesQuery);
+      
+      if (!userAppliedStudiesSnapshot.empty) {
+          // 사용자가 이미 해당 스터디에 신청한 경우
+          Alert.alert('중복 신청', '이미 신청한 스터디입니다.');
+          return;
+      }
+      
+      // 스터디를 저장할 경로 설정
+      const studyCollectionRef = collection(userDocRef, isOnline ? 'onlineStudies' : 'offlineStudies');
+      
+      // 새로운 스터디 문서 추가
+      const studyDocRef = doc(studyCollectionRef, studyId); // 스터디 아이디를 사용하여 문서 참조 설정
+      await setDoc(studyDocRef, {
+          studygroupName: studygroupName,
+          studyPeriod: studyPeriod,
+          location: {
+              id: studyLocationId,
+              latitude: selectedMapLocation ? selectedMapLocation.latitude : null,
+              longitude: selectedMapLocation ? selectedMapLocation.longitude : null,
+              buildingName: buildingName,
+          },
+          thumbnail: thumbnailURL,
+          isOnline: isOnline,
+          createdBy: currentUser ? currentUser.uid : null,
+          createdAt: timestamp,
+          appliedAt: serverTimestamp(),
+      });
+      
+
+  
+      // 성공 팝업
+      Alert.alert('스터디 생성 및 신청 성공', `스터디 생성 및 신청이 성공적으로 완료되었습니다.`);
+
       navigation.goBack();
+      // 스터디 모달을 닫습니다.
+    
     } catch (error) {
-      console.error('스터디 생성 오류:', error);
-      alert(`스터디 생성 중 오류가 발생했습니다.`);
+      console.error('스터디 생성 및 신청 오류:', error);
+      // 오류 처리
+      Alert.alert('스터디 생성 및 신청 오류', '스터디 생성 및 신청 중 오류가 발생했습니다.');
     }
   };
+  
 
   const openImagePicker = async () => {
     try {

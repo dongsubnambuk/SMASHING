@@ -15,7 +15,7 @@ import {
   getDocs,
   query,
   where,
-  addDoc, serverTimestamp,doc,updateDoc
+  addDoc, serverTimestamp,doc,updateDoc,setDoc
 } from 'firebase/firestore';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
@@ -100,11 +100,12 @@ const OfflineStudyScreen = ({ navigation }) => {
   };
 
   const showStudyModal = (study) => {
-  
-    setSelectedStudy(study); // 주석 처리
-    setSelectedStudyLocation(study.location); // 주석 처리
+    setSelectedStudy(study);
+    setSelectedStudyLocation(study.location);
     setStudyModalVisible(true);
   };
+  
+ 
  
  
     // 지도 모달을 열 때 호출되는 함수
@@ -173,16 +174,15 @@ const OfflineStudyScreen = ({ navigation }) => {
         }
     
         // Firestore의 "offlineStudies" 컬렉션에 새로운 문서를 추가합니다.
-        const offlineStudiesCollection = collection(userDocRef, 'offlineStudies');
-        const newDocRef = await addDoc(offlineStudiesCollection, {
-          studyId: selectedStudy.studyId,  // studyId 추가
+        const studyDocRef = doc(userDocRef, 'offlineStudies', selectedStudy.studyId);
+        await setDoc(studyDocRef, {
           ...selectedStudy,
           appliedAt: serverTimestamp(),
-          // createdBy: createdBy, // 생성자 추가
         });
-    
+        
         // 성공 팝업
-        Alert.alert('스터디 신청 성공', '스터디 신청이 성공적으로 완료되었습니다.');
+        Alert.alert('스터디 신청 성공', `스터디 신청이 성공적으로 완료되었습니다.`);
+
        
         // 스터디 모달을 닫습니다.
         setStudyModalVisible(false);
@@ -216,6 +216,7 @@ const OfflineStudyScreen = ({ navigation }) => {
             style={styles.studyItem}
             onPress={() => showStudyModal(study)} 
           >
+            
             <View style={styles.studyContentWrapper}>
               {study.thumbnail ? (
                 <Image

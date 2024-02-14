@@ -8,11 +8,11 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { firebaseConfig } from './firebaseConfig';
 import StudyList from './components/StudyList';
-import StudyDetail from './components/StudyDetail';
+import StudyRoomScreen from './components/StudyRoomScreen';
 import 'firebase/storage';
 import Studymain from './components/Studymain';
 import HomeScreen from './components/HomeScreen';
-import Calendar from './components/Calendar';
+import CalendarScreen from './components/CalendarScreen';
 import OfflineStudyScreen from './components/OfflineStudyScreen';
 import OnlineStudyScreen from './components/OnlineStudyScreen';
 import LoginPage from './components/LoginPage';
@@ -28,7 +28,8 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
 import PasswordRecoveryScreen from './components/PasswordRecoveryScreen';
 import Passwordserchauth from './components/Passwordserchauth';
-
+import Studyplusbtn from './components/Studyplusbtn';
+import ChatScreen from './components/ChatScreen';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -191,8 +192,8 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="StudyDetail"
-          component={StudyDetail}
+          name="StudyRoomScreen"
+          component={StudyRoomScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -206,8 +207,8 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Calendar"
-          component={Calendar}
+          name="CalendarScreen"
+          component={CalendarScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -220,7 +221,18 @@ const App = () => {
           component={OnlineStudyScreen}
           options={{ headerShown: false }}
         />
+          <Stack.Screen
+          name="Studyplusbtn"
+          component={Studyplusbtn}
+          options={{ headerShown: false }}
+        />
+           <Stack.Screen
+          name="ChatScreen"
+          component={ChatScreen}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
+      
     </NavigationContainer>
   );
 };

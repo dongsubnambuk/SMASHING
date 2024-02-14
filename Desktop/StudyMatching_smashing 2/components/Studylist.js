@@ -11,13 +11,15 @@ import { getFirestore, collection, getDocs,onSnapshot } from 'firebase/firestore
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { firebaseConfig } from '../firebaseConfig';
 import { initializeApp } from 'firebase/app';
+import { useNavigation } from '@react-navigation/native';
+
 
 const StudyList = () => {
   const [myStudies, setMyStudies] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);  // 최초 진입 시에만 자동 새로고침
   const [studyType, setStudyType] = useState('all');
-
+  const navigation = useNavigation();
 
   useEffect(() => {
     const app = initializeApp(firebaseConfig);
@@ -28,34 +30,40 @@ const StudyList = () => {
       if (currentUser) {
         setCurrentUser(currentUser);
   
-        const fetchMyStudies = async () => {
-          try {
-            const offlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'));
-            const offlineStudiesData = offlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Firestore에서 실시간으로 변경사항을 감지하여 화면에 반영
+        const unsubscribeOnlineSnapshot = onSnapshot(collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'), (onlineSnapshot) => {
+          const onlineStudiesData = onlineSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), isOnline: true }));
+          setMyStudies(prevStudies => {
+            // 중복된 아이템 제거 후 새로운 아이템 추가
+            const updatedStudies = prevStudies.filter(study => !study.isOnline);
+            return [...updatedStudies, ...onlineStudiesData];
+          });
+        });
   
-            const onlineQuerySnapshot = await getDocs(collection(firestore, 'applystudy', currentUser.uid, 'onlineStudies'));
-            const onlineStudiesData = onlineQuerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const unsubscribeOfflineSnapshot = onSnapshot(collection(firestore, 'applystudy', currentUser.uid, 'offlineStudies'), (offlineSnapshot) => {
+          const offlineStudiesData = offlineSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), isOnline: false }));
+          setMyStudies(prevStudies => {
+            // 중복된 아이템 제거 후 새로운 아이템 추가
+            const updatedStudies = prevStudies.filter(study => study.isOnline);
+            return [...updatedStudies, ...offlineStudiesData];
+          });
+        });
   
-            setMyStudies([...offlineStudiesData, ...onlineStudiesData]);
-          } catch (error) {
-            console.error('스터디 가져오기 오류:', error);
-            // 오류 처리
-          }
+        return () => {
+          unsubscribeOnlineSnapshot();
+          unsubscribeOfflineSnapshot();
         };
-  
-        fetchMyStudies();
       } else {
         setCurrentUser(null);
         setMyStudies([]);
       }
-    }, []); // 두 번째 인자가 빈 배열이므로 한 번만 실행됩니다.
+    });
   
     return () => {
       // Cleanup 함수에서 감지 리스너 해제
       unsubscribe();
     };
   }, []);
-  
 
   const onRefresh = () => {
     // 사용자가 직접 새로고침을 시도했을 때에만 함수 실행
@@ -66,13 +74,23 @@ const StudyList = () => {
       }, 2000);
     }
   };
+  const removeStudyFromList = (studyIdToRemove) => {
+    setMyStudies(prevStudies => prevStudies.filter(study => study.id !== studyIdToRemove));
+  };
+
+  const handleStudyItemClick = (studyId) => {
+   
+    
+    // 스터디 상세 페이지로 이동하는 네비게이션 코드
+    navigation.navigate('StudyRoomScreen', { studyId, removeStudyFromList });
+  };
   
 
   const renderMyStudyItem = ({ item,index }) => {
     const key = `${item.id}-${index}`;
     if (studyType === 'all' || (studyType === 'online' && item.isOnline) || (studyType === 'offline' && !item.isOnline)) {
       return (
-        <TouchableOpacity key={key}>
+        <TouchableOpacity key={key} onPress={() => handleStudyItemClick(item.id)}>
           <View style={styles.studyItemContainer}>
             <View style={styles.studyTextContainer}>
               <Text style={[styles.labelText]}>스터디명: </Text>
