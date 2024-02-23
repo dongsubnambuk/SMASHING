@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "StudyMatching_smashing",
+    "slug": "StudyMatching_smashing",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/Test3.png",
+      "backgroundColor": "#3D4AE7",
+      "width": 50,
+      "height": 50
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "위치 정보를 사용하려 합니다...",
+        "NSLocationAlwaysUsageDescription": "위치 정보를 사용하려 합니다..."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.dongseop.StudyMatching_smashing"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+   
+  }
+}
