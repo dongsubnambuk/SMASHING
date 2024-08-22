@@ -41,3 +41,8 @@ yarn-error.*
 .Desktop/
 
 
+echo "/android" >> .gitignore
+echo "/ios" >> .gitignore
+
+/android
+/ios

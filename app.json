@@ -8,30 +8,18 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/Test3.png",
-      "backgroundColor": "#3D4AE7",
-      "width": 50,
-      "height": 50
+      "backgroundColor": "#3D4AE7"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "위치 정보를 사용하려 합니다...",
-        "NSLocationAlwaysUsageDescription": "위치 정보를 사용하려 합니다..."
+    "extra": {
+      "eas": {
+        "projectId": "aab499b8-0295-4813-bffd-ed022f27c99a"
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.dongseop.StudyMatching_smashing"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     }
-   
   }
 }
