@@ -42,6 +42,7 @@
 - **Language** : JavaScript
 - **Library & Framework** : React Native,
 - **Deploy**: expo
+- **배포 명령어**: eas build -p android
 <br />
 
 **Backend**
